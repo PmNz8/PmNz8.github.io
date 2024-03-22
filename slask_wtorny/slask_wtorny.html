@@ -22,11 +22,11 @@
 </head>
 
 <body>
-	<div class="buttons-container" style="text-align:center; margin-bottom:20px;">
-        <a href="https://cichy45.github.io/" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Wojewódzkie wtórny</a>
-        <a href="https://cichy45.github.io/slask_pierwotny/slask_pierwotny.html" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląskie Pierwotny</a>
-        <a href="https://cichy45.github.io/slask_wtorny/slask_wtorny.html" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląsk Wtórny</a>
-    </div>
+	<div id="buttons-container" class="buttons-container" style="text-align:center; margin-bottom:20px;">
+		<a href="https://cichy45.github.io/" class="button">Wojewódzkie wtórny</a>
+		<a href="https://cichy45.github.io/slask_pierwotny/slask_pierwotny.html" class="button">Śląskie Pierwotny</a>
+		<a href="https://cichy45.github.io/slask_wtorny/slask_wtorny.html" class="button">Śląsk Wtórny</a>
+	</div>
     <div class="chart-container">
         <canvas id="offersChart"></canvas>
     </div>
@@ -283,6 +283,7 @@
 			// Simple check for mobile devices
 			if (/Mobi|Android/i.test(navigator.userAgent)) {
 				// It's a mobile device, adjust the .chart-container width to 100%
+				document.getElementById('buttons-container').style.marginTop = '20px';
 				var chartContainers = document.querySelectorAll('.chart-container');
 				chartContainers.forEach(function(container) {
 					container.style.width = '100%';
