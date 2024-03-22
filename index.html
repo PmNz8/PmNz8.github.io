@@ -271,7 +271,6 @@
 			// Simple check for mobile devices
 			if (/Mobi|Android/i.test(navigator.userAgent)) {
 				// It's a mobile device, adjust the .chart-container width to 100%
-				document.getElementById('buttons-container').style.marginTop = '20px';
 				var chartContainers = document.querySelectorAll('.chart-container');
 				chartContainers.forEach(function(container) {
 					container.style.width = '100%';
@@ -282,6 +281,15 @@
 				chartContainers.forEach(function(container) {
 					container.style.width = '50%';
 				});
+			}
+		});
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function(event) {
+			// Check if it's a mobile device
+			if (/Mobi|Android/i.test(navigator.userAgent)) {
+				// It's a mobile device, adjust the buttons container margin
+				document.getElementById('buttons-container').style.marginTop = '20px';
 			}
 		});
 	</script>
