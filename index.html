@@ -266,6 +266,23 @@
         // Function to generate random colors
 
     </script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function(event) {
+			// Simple check for mobile devices
+			if (/Mobi|Android/i.test(navigator.userAgent)) {
+				// It's a mobile device, adjust the .chart-container width to 100%
+				var chartContainers = document.querySelectorAll('.chart-container');
+				chartContainers.forEach(function(container) {
+					container.style.width = '100%';
+				});
+			} else {
+				// Not a mobile device, adjust the .chart-container width to 50%
+				var chartContainers = document.querySelectorAll('.chart-container');
+				chartContainers.forEach(function(container) {
+					container.style.width = '50%';
+				});
+			}
+		});
+	</script>
 </body>
-
 </html>
