@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Real Estate Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.0"></script>
+    <style>
+        .chart-container {
+            width: 50%;
+            margin: 0 auto;
+            min-height: 1000px;
+            /* or any other value that gives the charts a more square appearance */
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chart-container">
+        <canvas id="offersChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="avgPriceChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="pricePerSqMeterChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="avgFlatSizeChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="totalPriceChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="totalAreaChart"></canvas>
+    </div>
+
+    <script>
+        // URLs of the text files
+        const urls = [
+            'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/bedzin_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/bielsko--biala_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/bytom_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/chorzow_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/cieszyn_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/czechowice--dziedzice_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/czeladz_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/czestochowa_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/dabrowa-gornicza_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/gliwice_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/jastrzebie--zdroj_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/jaworzno_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/katowice_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/knurow_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/lubliniec_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/myslowice_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/piekary-slaskie_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/raciborz_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/radzionkow_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/ruda-slaska_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/rybnik_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/siemianowice-slaskie_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/sosnowiec_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/swietochlowice_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/szczyrk_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/tarnowskie-gory_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/tychy_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/zabrze_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/zawiercie_flatdata.txt',
+			'https://raw.githubusercontent.com/cichy45/cichy45.github.io/main/slask_pierwotny/zory_flatdata.txt'
+        ];
+
+        // Object to hold processed data for each city
+        let cityData = {};
+
+        let minYValues = {
+            numberOfOffers: Infinity,
+            avgFlatPrices: Infinity,
+            pricesPerSqMeter: Infinity,
+            avgFlatSizes: Infinity,
+            totalPrices: Infinity,
+            totalAreas: Infinity
+        };
+
+        // Function to process text data from each file
+        function processTextData(text, cityName) {
+            // Split the text into lines
+            const lines = text.trim().split('\n');
+            // Process each line
+            lines.forEach(line => {
+                const fields = line.split(' ');
+                if (fields.length >= 8) {
+                    const date = fields[0];
+                    const data = {
+                        date: date,
+                        numberOfOffers: parseInt(fields[3], 10),
+                        avgFlatPrice: parseFloat(fields[4]),
+                        pricePerSqMeter: parseFloat(fields[5]),
+                        avgFlatSize: parseFloat(fields[6]),
+                        totalPrice: parseFloat(fields[7]),
+                        totalArea: parseFloat(fields[8])
+                    };
+                    if (!cityData[cityName]) {
+                        cityData[cityName] = {
+                            dates: [],
+                            numberOfOffers: [],
+                            avgFlatPrices: [],
+                            pricesPerSqMeter: [],
+                            avgFlatSizes: [],
+                            totalPrices: [],
+                            totalAreas: []
+                        };
+                    }
+                    cityData[cityName].dates.push(data.date);
+                    cityData[cityName].numberOfOffers.push(data.numberOfOffers);
+                    cityData[cityName].avgFlatPrices.push(data.avgFlatPrice);
+                    cityData[cityName].pricesPerSqMeter.push(data.pricePerSqMeter);
+                    cityData[cityName].avgFlatSizes.push(data.avgFlatSize);
+                    cityData[cityName].totalPrices.push(data.totalPrice);
+                    cityData[cityName].totalAreas.push(data.totalArea);
+                }
+            });
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // A function to create a Chart.js dataset
+        function createDataset(cityData, key, label) {
+            return {
+                label: label,
+                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
+                fill: false,
+                borderColor: getRandomColor(),
+                pointBackgroundColor: getRandomColor(),
+                pointBorderColor: getRandomColor(),
+                pointHoverBackgroundColor: getRandomColor(),
+                pointHoverBorderColor: getRandomColor()
+            };
+        }
+
+        // This function finds the lowest value in an array of numbers
+        function findLowestValue(dataArray) {
+            return Math.min(...dataArray.filter(value => Number.isFinite(value)));
+        }
+
+        function setMinYAxis(datasets) {
+            let min = datasets[0].data[0].y;
+            datasets.forEach(dataset => {
+                dataset.data.forEach(dataPoint => {
+                    if (dataPoint.y < min) min = dataPoint.y;
+                });
+            });
+            return min;
+        }
+
+        // Fetch and process each file
+        Promise.all(urls.map(url => {
+            return fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                    if (match && match.length > 1) {
+                        const cityName = match[1].replace(/-/g, ' '); // Extract city name from URL and format
+                        processTextData(data, cityName);
+                    } else {
+                        console.error('Could not extract city name from URL:', url);
+                    }
+                });
+        }))
+            .then(() => {
+
+                // After all data is fetched and processed, initialize the charts
+                const chartOptions = {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                parser: 'YYYY-MM-DD',
+                                tooltipFormat: 'll',
+                                unit: 'day'
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Date'
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                };
+
+                // Create the charts for each data type
+                Object.keys(cityData).forEach(city => {
+                    minYValues.numberOfOffers = Math.min(minYValues.numberOfOffers, ...cityData[city].numberOfOffers);
+                    minYValues.avgFlatPrices = Math.min(minYValues.avgFlatPrices, ...cityData[city].avgFlatPrices);
+                    minYValues.pricesPerSqMeter = Math.min(minYValues.pricesPerSqMeter, ...cityData[city].pricesPerSqMeter);
+                    minYValues.avgFlatSizes = Math.min(minYValues.avgFlatSizes, ...cityData[city].avgFlatSizes);
+                    minYValues.totalPrices = Math.min(minYValues.totalPrices, ...cityData[city].totalPrices);
+                    minYValues.totalAreas = Math.min(minYValues.totalAreas, ...cityData[city].totalAreas);
+                });
+
+                // Function to create the charts with minYValues for yAxes
+                function createChart(canvasId, chartTitle, datasetKey, minYValue) {
+                    const ctx = document.getElementById(canvasId).getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: cityData[Object.keys(cityData)[0]].dates,
+                            datasets: Object.keys(cityData).map(city => createDataset(cityData[city], datasetKey, `${city} - ${chartTitle}`))
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    type: 'time',
+                                    time: {
+                                        parser: 'YYYY-MM-DD',
+                                        tooltipFormat: 'll',
+                                        unit: 'day'
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Date'
+                                    }
+                                }],
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: false,
+                                        min: minYValue
+                                    }
+                                }]
+                            },
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            title: {
+                                display: true,
+                                text: chartTitle
+                            }
+                        }
+                    });
+                }
+
+                // Initialize the charts
+                createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers', minYValues.numberOfOffers);
+                createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices', minYValues.avgFlatPrices);
+                createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter', minYValues.pricesPerSqMeter);
+                createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes', minYValues.avgFlatSizes);
+                createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices', minYValues.totalPrices);
+                createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas', minYValues.totalAreas);
+
+            })
+            .catch(error => {
+                console.error('Error setting up the charts:', error);
+            });
+
+        // Function to generate random colors
+
+    </script>
+</body>
+
+</html>
