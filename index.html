@@ -22,7 +22,7 @@
 </head>
 
 <body>
-	<div class="buttons-container" style="text-align:center; margin-bottom:20px;">
+	<div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
         <a href="https://cichy45.github.io/" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Wojewódzkie wtórny</a>
         <a href="https://cichy45.github.io/slask_pierwotny/slask_pierwotny.html" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląskie Pierwotny</a>
         <a href="https://cichy45.github.io/slask_wtorny/slask_wtorny.html" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląsk Wtórny</a>
@@ -281,15 +281,6 @@
 				chartContainers.forEach(function(container) {
 					container.style.width = '50%';
 				});
-			}
-		});
-	</script>
-	<script>
-		document.addEventListener("DOMContentLoaded", function(event) {
-			// Check if it's a mobile device
-			if (/Mobi|Android/i.test(navigator.userAgent)) {
-				// It's a mobile device, adjust the buttons container margin
-				document.getElementById('buttons-container').style.marginTop = '20px';
 			}
 		});
 	</script>
