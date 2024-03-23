@@ -10,8 +10,7 @@
         .chart-container {
             width: 50%;
             margin: 0 auto;
-            min-height: 1000px;
-            /* or any other value that gives the charts a more square appearance */
+            min-height: 1024px;
         }
 
         canvas {
@@ -78,15 +77,6 @@
         // Object to hold processed data for each city
         let cityData = {};
 
-        let minYValues = {
-            numberOfOffers: Infinity,
-            avgFlatPrices: Infinity,
-            pricesPerSqMeter: Infinity,
-            avgFlatSizes: Infinity,
-            totalPrices: Infinity,
-            totalAreas: Infinity
-        };
-
         // Function to process text data from each file
         function processTextData(text, cityName) {
             // Split the text into lines
@@ -152,21 +142,6 @@
             };
         }
 
-        // This function finds the lowest value in an array of numbers
-        function findLowestValue(dataArray) {
-            return Math.min(...dataArray.filter(value => Number.isFinite(value)));
-        }
-
-        function setMinYAxis(datasets) {
-            let min = datasets[0].data[0].y;
-            datasets.forEach(dataset => {
-                dataset.data.forEach(dataPoint => {
-                    if (dataPoint.y < min) min = dataPoint.y;
-                });
-            });
-            return min;
-        }
-
         // Fetch and process each file
         Promise.all(urls.map(url => {
             console.log(`Fetching data from URL: ${url}`);
@@ -210,7 +185,7 @@
                         }],
                         yAxes: [{
                             ticks: {
-                                beginAtZero: true
+                                beginAtZero: false
                             }
                         }]
                     },
@@ -218,18 +193,8 @@
                     maintainAspectRatio: false
                 };
 
-                // Create the charts for each data type
-                Object.keys(cityData).forEach(city => {
-                    minYValues.numberOfOffers = Math.min(minYValues.numberOfOffers, ...cityData[city].numberOfOffers);
-                    minYValues.avgFlatPrices = Math.min(minYValues.avgFlatPrices, ...cityData[city].avgFlatPrices);
-                    minYValues.pricesPerSqMeter = Math.min(minYValues.pricesPerSqMeter, ...cityData[city].pricesPerSqMeter);
-                    minYValues.avgFlatSizes = Math.min(minYValues.avgFlatSizes, ...cityData[city].avgFlatSizes);
-                    minYValues.totalPrices = Math.min(minYValues.totalPrices, ...cityData[city].totalPrices);
-                    minYValues.totalAreas = Math.min(minYValues.totalAreas, ...cityData[city].totalAreas);
-                });
-
                 // Function to create the charts with minYValues for yAxes
-                function createChart(canvasId, chartTitle, datasetKey, minYValue) {
+                function createChart(canvasId, chartTitle, datasetKey) {
                     const ctx = document.getElementById(canvasId).getContext('2d');
                     new Chart(ctx, {
                         type: 'line',
@@ -254,7 +219,6 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: false,
-                                        min: minYValue
                                     }
                                 }]
                             },
@@ -269,12 +233,12 @@
                 }
 
                 // Initialize the charts
-                createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers', minYValues.numberOfOffers);
-                createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices', minYValues.avgFlatPrices);
-                createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter', minYValues.pricesPerSqMeter);
-                createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes', minYValues.avgFlatSizes);
-                createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices', minYValues.totalPrices);
-                createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas', minYValues.totalAreas);
+                createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
+                createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
+                createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
+                createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
+                createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
+                createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
 
             })
             .catch(error => {
