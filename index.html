@@ -22,10 +22,16 @@
 </head>
 
 <body>
-	<div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
-        <a href="https://cichy45.github.io/" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Wojewódzkie wtórny</a>
-        <a href="https://cichy45.github.io/slask_pierwotny/slask_pierwotny.html" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląskie Pierwotny</a>
-        <a href="https://cichy45.github.io/slask_wtorny/slask_wtorny.html" class="button" style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląsk Wtórny</a>
+    <div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
+        <a href="https://cichy45.github.io/" class="button"
+            style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Wojewódzkie
+            wtórny</a>
+        <a href="https://cichy45.github.io/slask_pierwotny/slask_pierwotny.html" class="button"
+            style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląskie
+            Pierwotny</a>
+        <a href="https://cichy45.github.io/slask_wtorny/slask_wtorny.html" class="button"
+            style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląsk
+            Wtórny</a>
     </div>
     <div class="chart-container">
         <canvas id="offersChart"></canvas>
@@ -117,6 +123,8 @@
                     cityData[cityName].avgFlatSizes.push(data.avgFlatSize);
                     cityData[cityName].totalPrices.push(data.totalPrice);
                     cityData[cityName].totalAreas.push(data.totalArea);
+                } else {
+                    console.error(`Invalid data format for ${cityName}: `, line);
                 }
             });
         }
@@ -161,8 +169,15 @@
 
         // Fetch and process each file
         Promise.all(urls.map(url => {
+            console.log(`Fetching data from URL: ${url}`);
             return fetch(url)
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } else {
+                        return response.text();
+                    }
+                })
                 .then(data => {
                     const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
                     if (match && match.length > 1) {
@@ -171,10 +186,13 @@
                     } else {
                         console.error('Could not extract city name from URL:', url);
                     }
-                });
+                })
+                .catch(error => {
+                    console.error(`Fetch and processing failed for URL: ${url}`, error);
+                });;
         }))
             .then(() => {
-
+                console.log("All data fetched and processed, creating charts...");
                 // After all data is fetched and processed, initialize the charts
                 const chartOptions = {
                     scales: {
@@ -266,23 +284,24 @@
         // Function to generate random colors
 
     </script>
-	<script>
-		document.addEventListener("DOMContentLoaded", function(event) {
-			// Simple check for mobile devices
-			if (/Mobi|Android/i.test(navigator.userAgent)) {
-				// It's a mobile device, adjust the .chart-container width to 100%
-				var chartContainers = document.querySelectorAll('.chart-container');
-				chartContainers.forEach(function(container) {
-					container.style.width = '100%';
-				});
-			} else {
-				// Not a mobile device, adjust the .chart-container width to 50%
-				var chartContainers = document.querySelectorAll('.chart-container');
-				chartContainers.forEach(function(container) {
-					container.style.width = '50%';
-				});
-			}
-		});
-	</script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            // Simple check for mobile devices
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                // It's a mobile device, adjust the .chart-container width to 100%
+                var chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(function (container) {
+                    container.style.width = '100%';
+                });
+            } else {
+                // Not a mobile device, adjust the .chart-container width to 50%
+                var chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(function (container) {
+                    container.style.width = '50%';
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>
