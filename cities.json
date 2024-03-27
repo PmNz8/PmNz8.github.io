@@ -1,0 +1,194 @@
+{
+  "voivodeships": {
+	"podlaskie": {
+      "districts": {
+        "bialystok": {
+          "communes": {
+            "bialystok": {
+              "cities": ["bialystok"]
+            }
+          }
+        }
+      }
+    },
+	"kujawsko--pomorskie": {
+      "districts": {
+        "bydgoszcz": {
+          "communes": {
+            "bydgoszcz": {
+              "cities": ["bydgoszcz"]
+            }
+          }
+        },
+		"torun": {
+          "communes": {
+            "torun": {
+              "cities": ["torun"]
+            }
+          }
+        }
+      }
+    },
+	"pomorskie": {
+      "districts": {
+        "gdansk": {
+          "communes": {
+            "gdansk": {
+              "cities": ["gdansk"]
+            }
+          }
+        }
+      }
+    },
+	"lubuskie": {
+      "districts": {
+        "gorzow-wielkopolski": {
+          "communes": {
+            "gorzow-wielkopolski": {
+              "cities": ["gorzow-wielkopolski"]
+            }
+          }
+        },
+		"zielona-gora": {
+          "communes": {
+            "zielona-gora": {
+              "cities": ["zielona-gora"]
+            }
+          }
+        }
+      }
+    },
+	"slaskie": {
+      "districts": {
+        "katowice": {
+          "communes": {
+            "katowice": {
+              "cities": ["katowice"]
+            }
+          }
+        }
+      }
+    },
+	"lubelskie": {
+      "districts": {
+        "lublin": {
+          "communes": {
+            "lublin": {
+              "cities": ["lublin"]
+            }
+          }
+        }
+      }
+    },
+	"swietokrzyskie": {
+      "districts": {
+        "kielce": {
+          "communes": {
+            "kielce": {
+              "cities": ["kielce"]
+            }
+          }
+        }
+      }
+    },
+	"warminsko--mazurskie": {
+      "districts": {
+        "olsztyn": {
+          "communes": {
+            "olsztyn": {
+              "cities": ["olsztyn"]
+            }
+          }
+        }
+      }
+    },
+	"malopolskie": {
+      "districts": {
+        "krakow": {
+          "communes": {
+            "krakow": {
+              "cities": ["krakow"]
+            }
+          }
+        }
+      }
+    },
+	"lodzkie": {
+      "districts": {
+        "lodz": {
+          "communes": {
+            "lodz": {
+              "cities": ["lodz"]
+            }
+          }
+        }
+      }
+    },
+	"opolskie": {
+      "districts": {
+        "opole": {
+          "communes": {
+            "opole": {
+              "cities": ["opole"]
+            }
+          }
+        }
+      }
+    },
+	"wielkopolskie": {
+      "districts": {
+        "poznan": {
+          "communes": {
+            "poznan": {
+              "cities": ["poznan"]
+            }
+          }
+        }
+      }
+    },
+	"podkarpackie": {
+      "districts": {
+        "rzeszow": {
+          "communes": {
+            "rzeszow": {
+              "cities": ["rzeszow"]
+            }
+          }
+        }
+      }
+    },
+	"zachodniopomorskie": {
+      "districts": {
+        "szczecin": {
+          "communes": {
+            "szczecin": {
+              "cities": ["szczecin"]
+            }
+          }
+        }
+      }
+    },
+    "mazowieckie": {
+      "districts": {
+        "warszawa": {
+          "communes": {
+            "warszawa": {
+              "cities": ["warszawa"]
+            }
+          }
+        }
+      }
+    },
+    "dolnoslaskie": {
+      "districts": {
+        "wroclaw": {
+          "communes": {
+            "wroclaw": {
+              "cities": ["wroclaw"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
