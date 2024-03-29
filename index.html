@@ -3,9 +3,9 @@
 
 <head>
     <title>Real Estate Data Visualization</title>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.0/adapter.moment.min.js" defer></script>
     <style>
         .chart-container {
             width: 50%;
@@ -17,51 +17,57 @@
             display: block;
             max-width: 100%;
         }
-		.toggle-button {
+
+        .toggle-button {
             background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
-            margin: 5px 0;
+            margin: 5px 0 10px 0;
+            /* Combined margin property */
             border: none;
             cursor: pointer;
             border-radius: 5px;
             text-align: center;
-            display: block; /* Ensure the button is a block element for proper alignment */
-            margin-bottom: 10px; /* Optional: Adds some space between the button and the chart */
+            display: block;
+        }
+
+        .button {
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
 
 <body>
     <div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
-        <a href="https://PmNz8.github.io/" class="button"
-            style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Wojewódzkie
-            wtórny</a>
-        <a href="https://PmNz8.github.io/slask_pierwotny/slask_pierwotny.html" class="button"
-            style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląskie
-            Pierwotny</a>
-        <a href="https://PmNz8.github.io/slask_wtorny/slask_wtorny.html" class="button"
-            style="text-decoration:none; background-color:#4CAF50; color:white; padding:10px 20px; margin:0 10px; border:none; cursor:pointer; border-radius:5px;">Śląsk
-            Wtórny</a>
+        <a href="https://PmNz8.github.io/" class="button">Wojewódzkie wtórny</a>
+        <a href="https://PmNz8.github.io/slask_pierwotny/slask_pierwotny.html" class="button">Śląskie Pierwotny</a>
+        <a href="https://PmNz8.github.io/slask_wtorny/slask_wtorny.html" class="button">Śląsk Wtórny</a>
     </div>
     <div class="chart-container">
-		<button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
+        <button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
         <canvas id="offersChart"></canvas>
     </div>
     <div class="chart-container">
-		<canvas id="avgPriceChart"></canvas>
+        <canvas id="avgPriceChart"></canvas>
     </div>
     <div class="chart-container">
-		<canvas id="pricePerSqMeterChart"></canvas>
+        <canvas id="pricePerSqMeterChart"></canvas>
     </div>
     <div class="chart-container">
-		<canvas id="avgFlatSizeChart"></canvas>
+        <canvas id="avgFlatSizeChart"></canvas>
     </div>
     <div class="chart-container">
-		<canvas id="totalPriceChart"></canvas>
+        <canvas id="totalPriceChart"></canvas>
     </div>
     <div class="chart-container">
-		<canvas id="totalAreaChart"></canvas>
+        <canvas id="totalAreaChart"></canvas>
     </div>
     <script>
         // URLs of the text files
@@ -88,9 +94,9 @@
 
         // Object to hold processed data for each city
         let cityData = {};
-		let charts = {}; // Storing chart instances
-		let cityColors = {}; // Storing colors for each city
-		
+        let charts = {}; // Storing chart instances
+        let cityColors = {}; // Storing colors for each city
+
         // Function to process text data from each file
         function processTextData(text, cityName) {
             // Split the text into lines
@@ -134,164 +140,160 @@
         }
 
         function getRandomColor() {
-			const letters = '0123456789ABCDEF';
-			let color = '#';
-			for (let i = 0; i < 6; i++) {
-				color += letters[Math.floor(Math.random() * 16)];
-			}
-			return color;
-		}
-		
-		function initializeCityColors() {
-			urls.forEach(url => {
-				const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
-				if (match && match.length > 1) {
-					const cityName = match[1].replace(/-/g, ' '); // Format city name
-					cityColors[cityName] = getRandomColor(); // Assign a unique color to each city
-				}
-			});
-		}
-		
-		initializeCityColors();
-		
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function initializeCityColors() {
+            urls.forEach(url => {
+                const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                if (match && match.length > 1) {
+                    const cityName = match[1].replace(/-/g, ' '); // Format city name
+                    cityColors[cityName] = getRandomColor(); // Assign a unique color to each city
+                }
+            });
+        }
+
+        initializeCityColors();
+
         // A function to create a Chart.js dataset
         function createDataset(cityData, key, cityName) {
-			const color = cityColors[cityName];
-			return {
-				label: cityName, // Now the label is just the city name
-				data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
-				fill: false,
-				borderColor: color,
-				pointBackgroundColor: color,
-				pointBorderColor: color,
-				pointHoverBackgroundColor: color,
-				pointHoverBorderColor: color
-			};
-		}
-		
-		function toggleGlobalDataLines() {
-			// Iterate over all city names and toggle their visibility in all charts
-			Object.keys(cityColors).forEach(cityName => {
-				toggleDataLines(cityName);
-			});
-		}
-		
-		function toggleDataLines(datasetLabel) {
-			// Iterate over all charts
-			for (const chartId in charts) {
-				const chart = charts[chartId];
+            const color = cityColors[cityName];
+            return {
+                label: cityName, // Now the label is just the city name
+                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
+                fill: false,
+                borderColor: color,
+                pointBackgroundColor: color,
+                pointBorderColor: color,
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: color
+            };
+        }
 
-				// Find the dataset by label and toggle its visibility
-				const dataset = chart.data.datasets.find(d => d.label === datasetLabel);
-				if (dataset) {
-					dataset.hidden = !dataset.hidden;
-				}
+        function toggleGlobalDataLines() {
+            // Iterate over all city names and toggle their visibility in all charts
+            Object.keys(cityColors).forEach(cityName => {
+                toggleDataLines(cityName);
+            });
+        }
 
-				// Update the chart
-				chart.update();
-			}
-		}
-		
-		function handleLegendClick(e, legendItem) {
-			const index = legendItem.datasetIndex;
-			
-			// Iterate over all chart instances
-			Object.values(charts).forEach((chart) => {
-				const meta = chart.getDatasetMeta(index);
-				
-				// Toggle visibility
-				meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-				
-				// Update the chart
-				chart.update();
-			});
-		}
-		
-        // Fetch and process each file
-        Promise.all(urls.map(url => {
-            console.log(`Fetching data from URL: ${url}`);
-            return fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    } else {
-                        return response.text();
-                    }
-                })
-                .then(data => {
-                    const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
-                    if (match && match.length > 1) {
-                        const cityName = match[1].replace(/-/g, ' '); // Extract city name from URL and format
-                        processTextData(data, cityName);
-                    } else {
-                        console.error('Could not extract city name from URL:', url);
-                    }
-                })
-                .catch(error => {
-                    console.error(`Fetch and processing failed for URL: ${url}`, error);
-                });;
-        }))
-            .then(() => {
-                console.log("All data fetched and processed, creating charts...");
-                // After all data is fetched and processed, initialize the charts
+        function toggleDataLines(datasetLabel) {
+            // Iterate over all charts
+            for (const chartId in charts) {
+                const chart = charts[chartId];
 
-                // Function to create the charts with minYValues for yAxes
-                function createChart(canvasId, chartTitle, datasetKey) {
-                    const ctx = document.getElementById(canvasId).getContext('2d');
-                    charts[canvasId] = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: cityData[Object.keys(cityData)[0]].dates,
-                            datasets: Object.keys(cityData).map(cityName => createDataset(cityData[cityName], datasetKey, cityName))
-                        },
-                        options: {
-                            scales: {
-                                xAxes: [{
-                                    type: 'time',
-                                    time: {
-                                        parser: 'YYYY-MM-DD',
-                                        tooltipFormat: 'll',
-                                        unit: 'day'
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Date'
-                                    }
-                                }],
-                                yAxes: [{
-                                    ticks: {
-                                        beginAtZero: false,
-                                    }
-                                }]
-                            },
-							legend: {
-								onClick: handleLegendClick
-							},
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            title: {
-                                display: true,
-                                text: chartTitle
-                            }
-                        }
-                    });
+                // Find the dataset by label and toggle its visibility
+                const dataset = chart.data.datasets.find(d => d.label === datasetLabel);
+                if (dataset) {
+                    dataset.hidden = !dataset.hidden;
                 }
 
-                // Initialize the charts
-                createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
-                createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
-                createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
-                createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
-                createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
-                createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
+                // Update the chart
+                chart.update();
+            }
+        }
 
-            })
-            .catch(error => {
-                console.error('Error setting up the charts:', error);
+        function handleLegendClick(e, legendItem) {
+            const index = legendItem.datasetIndex;
+
+            // Iterate over all chart instances
+            Object.values(charts).forEach((chart) => {
+                const meta = chart.getDatasetMeta(index);
+
+                // Toggle visibility
+                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+
+                // Update the chart
+                chart.update();
             });
+        }
 
-        // Function to generate random colors
+        function createChart(canvasId, chartTitle, datasetKey) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: cityData[Object.keys(cityData)[0]].dates,
+                    datasets: Object.keys(cityData).map(cityName => createDataset(cityData[cityName], datasetKey, cityName))
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                parser: 'YYYY-MM-DD',
+                                tooltipFormat: 'll',
+                                unit: 'day'
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Date'
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: false,
+                            }
+                        }]
+                    },
+                    legend: {
+                        onClick: handleLegendClick
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: chartTitle
+                    }
+                }
+            });
+        }
 
+        function initializeCharts() {
+            createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
+            createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
+            createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
+            createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
+            createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
+            createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
+        }
+
+        // Async function to fetch and process data for a single URL
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.text();
+                const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                if (match && match.length > 1) {
+                    const cityName = match[1].replace(/-/g, ' ');
+                    processTextData(data, cityName);
+                } else {
+                    console.error('Could not extract city name from URL:', url);
+                }
+            } catch (error) {
+                console.error(`Fetch and processing failed for URL: ${url}`, error);
+            }
+        }
+
+        // Function to initialize data fetching and processing for all URLs
+        async function initializeData() {
+            const fetchPromises = urls.map(url => fetchData(url));
+            await Promise.all(fetchPromises);
+            console.log("All data fetched and processed, creating charts...");
+            // Call your function to initialize charts here
+            initializeCharts();
+        }
+
+        // Call initializeData at the end of your script
+        initializeData();
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function (event) {
