@@ -10,13 +10,24 @@
         .chart-container {
             width: 50%;
             margin: 0 auto;
-            min-height: 1000px;
-            /* or any other value that gives the charts a more square appearance */
+            min-height: 1024px;
         }
 
         canvas {
             display: block;
             max-width: 100%;
+        }
+		.toggle-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            display: block; /* Ensure the button is a block element for proper alignment */
+            margin-bottom: 10px; /* Optional: Adds some space between the button and the chart */
         }
     </style>
 </head>
@@ -34,24 +45,29 @@
             Wtórny</a>
     </div>
     <div class="chart-container">
+		<button class="toggle-button" onclick="toggleDataLines('offersChart')">Toggle Offers</button>
         <canvas id="offersChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="avgPriceChart"></canvas>
+        <button class="toggle-button" onclick="toggleDataLines('avgPriceChart')">Toggle Avg Price</button>
+		<canvas id="avgPriceChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="pricePerSqMeterChart"></canvas>
+        <button class="toggle-button" onclick="toggleDataLines('pricePerSqMeterChart')">Toggle Price/Sq Meter</button>
+		<canvas id="pricePerSqMeterChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="avgFlatSizeChart"></canvas>
+        <button class="toggle-button" onclick="toggleDataLines('avgFlatSizeChart')">Toggle Avg Flat Size</button>
+		<canvas id="avgFlatSizeChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="totalPriceChart"></canvas>
+        <button class="toggle-button" onclick="toggleDataLines('totalPriceChart')">Toggle Total Price</button>
+		<canvas id="totalPriceChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="totalAreaChart"></canvas>
+        <button class="toggle-button" onclick="toggleDataLines('totalAreaChart')">Toggle Total Area</button>
+		<canvas id="totalAreaChart"></canvas>
     </div>
-
     <script>
         // URLs of the text files
         const urls = [
@@ -88,9 +104,10 @@
         ];
 
         // Object to hold processed data for each city
-        // Object to hold processed data for each city
         let cityData = {};
-
+		let charts = {}; // Storing chart instances
+		let cityColors = {}; // Storing colors for each city
+		
         // Function to process text data from each file
         function processTextData(text, cityName) {
             // Split the text into lines
@@ -134,26 +151,49 @@
         }
 
         function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
+			const letters = '0123456789ABCDEF';
+			let color = '#';
+			for (let i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		}
+		
+		function initializeCityColors() {
+			urls.forEach(url => {
+				const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+				if (match && match.length > 1) {
+					const cityName = match[1].replace(/-/g, ' '); // Format city name
+					cityColors[cityName] = getRandomColor(); // Assign a unique color to each city
+				}
+			});
+		}
+		
+		initializeCityColors();
+		
         // A function to create a Chart.js dataset
-        function createDataset(cityData, key, label) {
-            return {
-                label: label,
-                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
-                fill: false,
-                borderColor: getRandomColor(),
-                pointBackgroundColor: getRandomColor(),
-                pointBorderColor: getRandomColor(),
-                pointHoverBackgroundColor: getRandomColor(),
-                pointHoverBorderColor: getRandomColor()
-            };
+        function createDataset(cityData, key, cityName) {
+			const color = cityColors[cityName];
+			return {
+				label: cityName, // Now the label is just the city name
+				data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
+				fill: false,
+				borderColor: color,
+				pointBackgroundColor: color,
+				pointBorderColor: color,
+				pointHoverBackgroundColor: color,
+				pointHoverBorderColor: color
+			};
+		}
+
+		function toggleDataLines(chartId) {
+            const chart = charts[chartId];
+            if (chart) {
+                chart.data.datasets.forEach(dataset => {
+                    dataset.hidden = !dataset.hidden; // Toggle the hidden property
+                });
+                chart.update(); // Update the chart to reflect changes
+            }
         }
 
         // Fetch and process each file
@@ -210,11 +250,11 @@
                 // Function to create the charts with minYValues for yAxes
                 function createChart(canvasId, chartTitle, datasetKey) {
                     const ctx = document.getElementById(canvasId).getContext('2d');
-                    new Chart(ctx, {
+                    charts[canvasId] = new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: cityData[Object.keys(cityData)[0]].dates,
-                            datasets: Object.keys(cityData).map(city => createDataset(cityData[city], datasetKey, `${city} - ${chartTitle}`))
+                            datasets: Object.keys(cityData).map(cityName => createDataset(cityData[cityName], datasetKey, cityName))
                         },
                         options: {
                             scales: {
@@ -261,6 +301,24 @@
 
         // Function to generate random colors
 
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            // Simple check for mobile devices
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                // It's a mobile device, adjust the .chart-container width to 100%
+                var chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(function (container) {
+                    container.style.width = '100%';
+                });
+            } else {
+                // Not a mobile device, adjust the .chart-container width to 50%
+                var chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(function (container) {
+                    container.style.width = '50%';
+                });
+            }
+        });
     </script>
 </body>
 
