@@ -10,7 +10,7 @@
         .chart-container {
             width: 50%;
             margin: 0 auto;
-            min-height: 1024px;
+            min-height: 800px;
         }
 
         canvas {
@@ -45,27 +45,22 @@
             Wtórny</a>
     </div>
     <div class="chart-container">
-		<button class="toggle-button" onclick="toggleDataLines('offersChart')">Toggle Offers</button>
+		<button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
         <canvas id="offersChart"></canvas>
     </div>
     <div class="chart-container">
-        <button class="toggle-button" onclick="toggleDataLines('avgPriceChart')">Toggle Avg Price</button>
 		<canvas id="avgPriceChart"></canvas>
     </div>
     <div class="chart-container">
-        <button class="toggle-button" onclick="toggleDataLines('pricePerSqMeterChart')">Toggle Price/Sq Meter</button>
 		<canvas id="pricePerSqMeterChart"></canvas>
     </div>
     <div class="chart-container">
-        <button class="toggle-button" onclick="toggleDataLines('avgFlatSizeChart')">Toggle Avg Flat Size</button>
 		<canvas id="avgFlatSizeChart"></canvas>
     </div>
     <div class="chart-container">
-        <button class="toggle-button" onclick="toggleDataLines('totalPriceChart')">Toggle Total Price</button>
 		<canvas id="totalPriceChart"></canvas>
     </div>
     <div class="chart-container">
-        <button class="toggle-button" onclick="toggleDataLines('totalAreaChart')">Toggle Total Area</button>
 		<canvas id="totalAreaChart"></canvas>
     </div>
     <script>
@@ -185,17 +180,45 @@
 				pointHoverBorderColor: color
 			};
 		}
+		
+		function toggleGlobalDataLines() {
+			// Iterate over all city names and toggle their visibility in all charts
+			Object.keys(cityColors).forEach(cityName => {
+				toggleDataLines(cityName);
+			});
+		}
+		
+		function toggleDataLines(datasetLabel) {
+			// Iterate over all charts
+			for (const chartId in charts) {
+				const chart = charts[chartId];
 
-		function toggleDataLines(chartId) {
-            const chart = charts[chartId];
-            if (chart) {
-                chart.data.datasets.forEach(dataset => {
-                    dataset.hidden = !dataset.hidden; // Toggle the hidden property
-                });
-                chart.update(); // Update the chart to reflect changes
-            }
-        }
+				// Find the dataset by label and toggle its visibility
+				const dataset = chart.data.datasets.find(d => d.label === datasetLabel);
+				if (dataset) {
+					dataset.hidden = !dataset.hidden;
+				}
 
+				// Update the chart
+				chart.update();
+			}
+		}
+		
+		function handleLegendClick(e, legendItem) {
+			const index = legendItem.datasetIndex;
+			
+			// Iterate over all chart instances
+			Object.values(charts).forEach((chart) => {
+				const meta = chart.getDatasetMeta(index);
+				
+				// Toggle visibility
+				meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+				
+				// Update the chart
+				chart.update();
+			});
+		}
+		
         // Fetch and process each file
         Promise.all(urls.map(url => {
             console.log(`Fetching data from URL: ${url}`);
@@ -223,29 +246,6 @@
             .then(() => {
                 console.log("All data fetched and processed, creating charts...");
                 // After all data is fetched and processed, initialize the charts
-                const chartOptions = {
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                parser: 'YYYY-MM-DD',
-                                tooltipFormat: 'll',
-                                unit: 'day'
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Date'
-                            }
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: false
-                            }
-                        }]
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false
-                };
 
                 // Function to create the charts with minYValues for yAxes
                 function createChart(canvasId, chartTitle, datasetKey) {
@@ -276,6 +276,9 @@
                                     }
                                 }]
                             },
+							legend: {
+								onClick: handleLegendClick
+							},
                             responsive: true,
                             maintainAspectRatio: false,
                             title: {
