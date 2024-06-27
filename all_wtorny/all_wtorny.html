@@ -10,7 +10,7 @@
         .chart-container {
             width: 50%;
             margin: 0 auto;
-            min-height: 500px;
+            min-height: 300px;
         }
 
         canvas {
@@ -50,6 +50,7 @@
         <a href="https://PmNz8.github.io/slask_pierwotny/slask_pierwotny.html" class="button">Śląskie Pierwotny</a>
         <a href="https://PmNz8.github.io/slask_wtorny/slask_wtorny.html" class="button">Śląsk Wtórny</a>
 		<a href="https://PmNz8.github.io/all_wtorny/all_wtorny.html" class="button">Polska Wtórny</a>
+        <a href="https://PmNz8.github.io/size/all_wtorny_sizes.html" class="button">Polska Wtórny Rozmiary</a>
     </div>
     <div class="chart-container">
         <button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
@@ -145,11 +146,11 @@
         initializeCityColors();
 
         // A function to create a Chart.js dataset
-        function createDataset(cityData, key, cityName) {
-            const color = cityColors[cityName];
+        function createDataset(sizeData, sizeLabel) {
+            const color = cityColors[sizeLabel];
             return {
-                label: cityName, // Now the label is just the city name
-                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
+                label: sizeLabel,
+                data: sizeData.sizes[sizeLabel].map((value, index) => ({ x: sizeData.dates[index], y: value })),
                 fill: false,
                 borderColor: color,
                 pointBackgroundColor: color,
