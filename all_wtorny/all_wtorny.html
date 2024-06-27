@@ -10,7 +10,7 @@
         .chart-container {
             width: 50%;
             margin: 0 auto;
-            min-height: 300px;
+            min-height: 500px;
         }
 
         canvas {
@@ -146,11 +146,11 @@
         initializeCityColors();
 
         // A function to create a Chart.js dataset
-        function createDataset(sizeData, sizeLabel) {
-            const color = cityColors[sizeLabel];
+        function createDataset(cityData, key, cityName) {
+            const color = cityColors[cityName];
             return {
-                label: sizeLabel,
-                data: sizeData.sizes[sizeLabel].map((value, index) => ({ x: sizeData.dates[index], y: value })),
+                label: cityName, // Now the label is just the city name
+                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
                 fill: false,
                 borderColor: color,
                 pointBackgroundColor: color,
