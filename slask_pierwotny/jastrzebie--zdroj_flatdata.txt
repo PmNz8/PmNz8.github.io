@@ -66,3 +66,4 @@
 2024-07-14 pierwotny jastrzebie--zdroj 1 590000 4682.54 126 590000 126
 2024-07-15 pierwotny jastrzebie--zdroj 1 590000 4682.54 126 590000 126
 2024-07-16 pierwotny jastrzebie--zdroj 1 590000 4682.54 126 590000 126
+2024-07-17 pierwotny jastrzebie--zdroj 1 590000 4682.54 126 590000 126
