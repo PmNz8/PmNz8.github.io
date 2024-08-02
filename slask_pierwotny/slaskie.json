@@ -1,0 +1,219 @@
+{
+  "voivodeships": {
+    "slaskie": {
+      "districts": {
+        "bytom": {
+          "communes": {
+            "bytom": {
+              "cities": ["bytom"]
+            }
+          }
+        },
+        "zabrze": {
+          "communes": {
+            "zabrze": {
+              "cities": ["zabrze"]
+            }
+          }
+        },
+        "chorzow": {
+          "communes": {
+            "chorzow": {
+              "cities": ["chorzow"]
+            }
+          }
+        },
+        "gliwice": {
+          "communes": {
+            "gliwice": {
+              "cities": ["gliwice"]
+            }
+          }
+        },
+        "sosnowiec": {
+          "communes": {
+            "sosnowiec": {
+              "cities": ["sosnowiec"]
+            }
+          }
+        },
+        "dabrowa-gornicza": {
+          "communes": {
+            "dabrowa-gornicza": {
+              "cities": ["dabrowa-gornicza"]
+            }
+          }
+        },
+        "tarnogorski": {
+          "communes": {
+            "tarnowskie-gory": {
+              "cities": ["tarnowskie-gory"]
+            },
+            "radzionkow": {
+              "cities": ["radzionkow"]
+            }
+          }
+        },
+        "bedzinski": {
+          "communes": {
+            "bedzin": {
+              "cities": ["bedzin"]
+            },
+			"czeladz": {
+              "cities": ["czeladz"]
+            }
+          }
+        },
+        "bielsko--biala": {
+          "communes": {
+            "bielsko--biala": {
+              "cities": ["bielsko--biala"]
+            }
+          }
+        },
+        "zory": {
+          "communes": {
+            "zory": {
+              "cities": ["zory"]
+            }
+          }
+        },
+        "zawiercianski": {
+          "communes": {
+            "zawiercie": {
+              "cities": ["zawiercie"]
+            }
+          }
+        },
+        "tychy": {
+          "communes": {
+            "tychy": {
+              "cities": ["tychy"]
+            }
+          }
+        },
+        "gliwicki": {
+          "communes": {
+            "toszek": {
+              "cities": ["toszek"]
+            },
+			"pyskowice": {
+              "cities": ["pyskowice"]
+            },
+			"knurow": {
+              "cities": ["knurow"]
+            }
+          }
+        },
+        "bielski": {
+          "communes": {
+            "szczyrk": {
+              "cities": ["szczyrk"]
+            },
+			"czechowice--dziedzice": {
+              "cities": ["czechowice--dziedzice"]
+            }
+          }
+        },
+        "swietochlowice": {
+          "communes": {
+            "swietochlowice": {
+              "cities": ["swietochlowice"]
+            }
+          }
+        },
+        "siemianowice-slaskie": {
+          "communes": {
+            "siemianowice-slaskie": {
+              "cities": ["siemianowice-slaskie"]
+            }
+          }
+        },
+        "rybnik": {
+          "communes": {
+            "rybnik": {
+              "cities": ["rybnik"]
+            }
+          }
+        },
+        "ruda-slaska": {
+          "communes": {
+            "ruda-slaska": {
+              "cities": ["ruda-slaska"]
+            }
+          }
+        },
+        "ruda-slaska": {
+          "communes": {
+            "ruda-slaska": {
+              "cities": ["ruda-slaska"]
+            }
+          }
+        },
+        "raciborski": {
+          "communes": {
+            "raciborz": {
+              "cities": ["raciborz"]
+            }
+          }
+        },
+        "piekary-slaskie": {
+          "communes": {
+            "piekary-slaskie": {
+              "cities": ["piekary-slaskie"]
+            }
+          }
+        },
+        "myslowice": {
+          "communes": {
+            "myslowice": {
+              "cities": ["myslowice"]
+            }
+          }
+        },
+        "lubliniecki": {
+          "communes": {
+            "lubliniec": {
+              "cities": ["lubliniec"]
+            }
+          }
+        },
+        "jaworzno": {
+          "communes": {
+            "jaworzno": {
+              "cities": ["jaworzno"]
+            }
+          }
+        },
+        "jastrzebie--zdroj": {
+          "communes": {
+            "jastrzebie--zdroj": {
+              "cities": ["jastrzebie--zdroj"]
+            }
+          }
+        },
+        "czestochowa": {
+          "communes": {
+            "czestochowa": {
+              "cities": ["czestochowa"]
+            }
+          }
+        },
+        "cieszynski": {
+          "communes": {
+            "cieszyn": {
+              "cities": ["cieszyn"]
+            }
+          }
+        },
+        "katowice": {
+          "communes": {
+            "katowice": {
+              "cities": ["katowice"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
