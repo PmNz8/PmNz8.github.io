@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Real Estate Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.0/adapter.moment.min.js" defer></script>
+    <style>
+        .chart-container {
+            width: 50%;
+            margin: 0 auto;
+            min-height: 500px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        .toggle-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px 0 10px 0;
+            /* Combined margin property */
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            display: block;
+        }
+
+        .button {
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
+        <a href="https://PmNz8.github.io/" class="button">Wojewódzkie wtórny</a>
+        <a href="https://PmNz8.github.io/slask_pierwotny/slask_pierwotny.html" class="button">Śląskie Pierwotny</a>
+        <a href="https://PmNz8.github.io/slask_wtorny/slask_wtorny.html" class="button">Śląsk Wtórny</a>
+		<a href="https://PmNz8.github.io/all_wtorny/all_wtorny.html" class="button">Polska Wtórny</a>
+		<a href="https://PmNz8.github.io/all_1d_new/all_1d_wtorny.html" class="button">Polska Wtórny - nowe oferty z ostatnich 24h</a>
+		<a href="https://PmNz8.github.io/all_7d_new/all_7d_wtorny.html" class="button">Polska Wtórny - nowe oferty z ostatnich 7 dni</a>
+        <a href="https://PmNz8.github.io/size/all_wtorny_sizes.html" class="button">Polska Wtórny Rozmiary</a>
+    </div>
+    <div class="chart-container">
+        <button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
+        <canvas id="offersChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="avgPriceChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="pricePerSqMeterChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="avgFlatSizeChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="totalPriceChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="totalAreaChart"></canvas>
+    </div>
+    <script>
+        // URLs of the text files
+        const urls = [
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/all_1d_new/wszystko_1d_new_flatdata.txt'
+        ];
+
+        // Object to hold processed data for each city
+        let cityData = {};
+        let charts = {}; // Storing chart instances
+        let cityColors = {}; // Storing colors for each city
+
+        // Function to process text data from each file
+        function processTextData(text, cityName) {
+            // Split the text into lines
+            const lines = text.trim().split('\n');
+            // Process each line
+            lines.forEach(line => {
+                const fields = line.split(' ');
+                if (fields.length >= 8) {
+                    const date = fields[0];
+                    const data = {
+                        date: date,
+                        numberOfOffers: parseInt(fields[3], 10),
+                        avgFlatPrice: parseFloat(fields[4]),
+                        pricePerSqMeter: parseFloat(fields[5]),
+                        avgFlatSize: parseFloat(fields[6]),
+                        totalPrice: parseFloat(fields[7]),
+                        totalArea: parseFloat(fields[8])
+                    };
+                    if (!cityData[cityName]) {
+                        cityData[cityName] = {
+                            dates: [],
+                            numberOfOffers: [],
+                            avgFlatPrices: [],
+                            pricesPerSqMeter: [],
+                            avgFlatSizes: [],
+                            totalPrices: [],
+                            totalAreas: []
+                        };
+                    }
+                    cityData[cityName].dates.push(data.date);
+                    cityData[cityName].numberOfOffers.push(data.numberOfOffers);
+                    cityData[cityName].avgFlatPrices.push(data.avgFlatPrice);
+                    cityData[cityName].pricesPerSqMeter.push(data.pricePerSqMeter);
+                    cityData[cityName].avgFlatSizes.push(data.avgFlatSize);
+                    cityData[cityName].totalPrices.push(data.totalPrice);
+                    cityData[cityName].totalAreas.push(data.totalArea);
+                } else {
+                    console.error(`Invalid data format for ${cityName}: `, line);
+                }
+            });
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function initializeCityColors() {
+            urls.forEach(url => {
+                const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                if (match && match.length > 1) {
+                    const cityName = match[1].replace(/-/g, ' '); // Format city name
+                    cityColors[cityName] = getRandomColor(); // Assign a unique color to each city
+                }
+            });
+        }
+
+        initializeCityColors();
+
+        // A function to create a Chart.js dataset
+        function createDataset(cityData, key, cityName) {
+            const color = cityColors[cityName];
+            return {
+                label: cityName, // Now the label is just the city name
+                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
+                fill: false,
+                borderColor: color,
+                pointBackgroundColor: color,
+                pointBorderColor: color,
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: color
+            };
+        }
+
+        function toggleGlobalDataLines() {
+            // Iterate over all city names and toggle their visibility in all charts
+            Object.keys(cityColors).forEach(cityName => {
+                toggleDataLines(cityName);
+            });
+        }
+
+        function toggleDataLines(datasetLabel) {
+            // Iterate over all charts
+            for (const chartId in charts) {
+                const chart = charts[chartId];
+
+                // Find the dataset by label and toggle its visibility
+                const dataset = chart.data.datasets.find(d => d.label === datasetLabel);
+                if (dataset) {
+                    dataset.hidden = !dataset.hidden;
+                }
+
+                // Update the chart
+                chart.update();
+            }
+        }
+
+        function handleLegendClick(e, legendItem) {
+            const index = legendItem.datasetIndex;
+
+            // Iterate over all chart instances
+            Object.values(charts).forEach((chart) => {
+                const meta = chart.getDatasetMeta(index);
+
+                // Toggle visibility
+                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+
+                // Update the chart
+                chart.update();
+            });
+        }
+
+        function createChart(canvasId, chartTitle, datasetKey) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: cityData[Object.keys(cityData)[0]].dates,
+                    datasets: Object.keys(cityData).map(cityName => createDataset(cityData[cityName], datasetKey, cityName))
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                parser: 'YYYY-MM-DD',
+                                tooltipFormat: 'll',
+                                unit: 'day'
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Date'
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: false,
+                            }
+                        }]
+                    },
+                    legend: {
+                        onClick: handleLegendClick
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: chartTitle
+                    }
+                }
+            });
+        }
+
+        function initializeCharts() {
+            createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
+            createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
+            createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
+            createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
+            createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
+            createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
+        }
+
+        // Async function to fetch and process data for a single URL
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.text();
+                const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                if (match && match.length > 1) {
+                    const cityName = match[1].replace(/-/g, ' ');
+                    processTextData(data, cityName);
+                } else {
+                    console.error('Could not extract city name from URL:', url);
+                }
+            } catch (error) {
+                console.error(`Fetch and processing failed for URL: ${url}`, error);
+            }
+        }
+
+        // Function to initialize data fetching and processing for all URLs
+        async function initializeData() {
+            const fetchPromises = urls.map(url => fetchData(url));
+            await Promise.all(fetchPromises);
+            console.log("All data fetched and processed, creating charts...");
+            // Call your function to initialize charts here
+            initializeCharts();
+        }
+
+        // Call initializeData at the end of your script
+        initializeData();
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            // Simple check for mobile devices
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                // It's a mobile device, adjust the .chart-container width to 100%
+                var chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(function (container) {
+                    container.style.width = '100%';
+                });
+            } else {
+                // Not a mobile device, adjust the .chart-container width to 50%
+                var chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(function (container) {
+                    container.style.width = '50%';
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
