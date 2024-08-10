@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        .chart-container {
+            width: 75%;
+            margin: 0 auto;
+            min-height: 500px;
+        }
+
+        .toggle-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px 0 10px 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            display: block;
+        }
+
+        .button {
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
+        <a href="https://PmNz8.github.io/" class="button">Wojewódzkie wtórny</a>
+        <a href="https://PmNz8.github.io/slask_pierwotny/slask_pierwotny.html" class="button">Śląskie Pierwotny</a>
+        <a href="https://PmNz8.github.io/slask_wtorny/slask_wtorny.html" class="button">Śląsk Wtórny</a>
+		<a href="https://PmNz8.github.io/all_wtorny/all_wtorny.html" class="button">Polska Wtórny</a>
+		<a href="https://PmNz8.github.io/all_1d_new/all_1d_wtorny.html" class="button">Polska Wtórny - nowe oferty z ostatnich 24h</a>
+		<a href="https://PmNz8.github.io/all_7d_new/all_7d_wtorny.html" class="button">Polska Wtórny - nowe oferty z ostatnich 7 dni</a>
+        <a href="https://PmNz8.github.io/size/all_wtorny_sizes.html" class="button">Polska Wtórny Rozmiary</a>
+    </div>
+    <div class="chart-container">
+        <button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
+        <div id="offersChart"></div>
+    </div>
+    <div class="chart-container" id="avgPriceChart"></div>
+    <div class="chart-container" id="pricePerSqMeterChart"></div>
+    <div class="chart-container" id="avgFlatSizeChart"></div>
+    <div class="chart-container" id="totalPriceChart"></div>
+    <div class="chart-container" id="totalAreaChart"></div>
+
+    <script>
+        // URLs of the text files
+        const urls = [
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/bialystok_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/bydgoszcz_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/gdansk_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/gorzow-wielkopolski_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/katowice_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/kielce_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/krakow_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/lodz_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/lublin_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/olsztyn_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/opole_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/poznan_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/rzeszow_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/szczecin_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/torun_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/warszawa_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/wroclaw_flatdata.txt',
+            'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/zielona-gora_flatdata.txt'
+        ];
+
+        let cityData = {};
+        let charts = {};
+        let cityColors = {};
+        let allLinesVisible = true;  // State to track visibility
+		
+        function processTextData(text, cityName) {
+            const lines = text.trim().split('\n');
+            lines.forEach(line => {
+                const fields = line.split(' ');
+                if (fields.length >= 8) {
+                    const date = fields[0];
+                    const data = {
+                        date: date,
+                        numberOfOffers: parseInt(fields[3], 10),
+                        avgFlatPrice: parseFloat(fields[4]),
+                        pricePerSqMeter: parseFloat(fields[5]),
+                        avgFlatSize: parseFloat(fields[6]),
+                        totalPrice: parseFloat(fields[7]),
+                        totalArea: parseFloat(fields[8])
+                    };
+                    if (!cityData[cityName]) {
+                        cityData[cityName] = {
+                            dates: [],
+                            numberOfOffers: [],
+                            avgFlatPrices: [],
+                            pricesPerSqMeter: [],
+                            avgFlatSizes: [],
+                            totalPrices: [],
+                            totalAreas: []
+                        };
+                    }
+                    cityData[cityName].dates.push(data.date);
+                    cityData[cityName].numberOfOffers.push(data.numberOfOffers);
+                    cityData[cityName].avgFlatPrices.push(data.avgFlatPrice);
+                    cityData[cityName].pricesPerSqMeter.push(data.pricePerSqMeter);
+                    cityData[cityName].avgFlatSizes.push(data.avgFlatSize);
+                    cityData[cityName].totalPrices.push(data.totalPrice);
+                    cityData[cityName].totalAreas.push(data.totalArea);
+                } else {
+                    console.error(`Invalid data format for ${cityName}: `, line);
+                }
+            });
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function initializeCityColors() {
+            urls.forEach(url => {
+                const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                if (match && match.length > 1) {
+                    const cityName = match[1].replace(/-/g, ' '); // Format city name
+                    cityColors[cityName] = getRandomColor(); // Assign a unique color to each city
+                }
+            });
+        }
+
+        initializeCityColors();
+
+		// Function to synchronize visibility across all charts
+		function syncSeriesVisibility(seriesName, isVisible) {
+			Object.values(charts).forEach(chart => {
+				if (isVisible) {
+					chart.showSeries(seriesName);
+				} else {
+					chart.hideSeries(seriesName);
+				}
+			});
+		}
+
+		// Function to handle legend clicks and synchronize across charts
+		function handleLegendClick(chart, seriesName) {
+			const isVisible = chart.w.globals.collapsedSeriesIndices.indexOf(chart.w.globals.seriesNames.indexOf(seriesName)) === -1;
+			syncSeriesVisibility(seriesName, !isVisible);
+		}
+
+		function toggleGlobalDataLines() {
+			allLinesVisible = !allLinesVisible; // Toggle the visibility state
+
+			Object.values(charts).forEach(chart => {
+				chart.w.globals.seriesNames.forEach(seriesName => {
+					if (allLinesVisible) {
+						chart.showSeries(seriesName); // Show series if they are hidden
+					} else {
+						chart.hideSeries(seriesName); // Hide series if they are visible
+					}
+				});
+			});
+		}
+		
+		function createChart(chartId, chartTitle, datasetKey) {
+			const seriesData = Object.keys(cityData).map(cityName => ({
+				name: cityName,
+				data: cityData[cityName].dates.map((date, index) => [new Date(date).getTime(), cityData[cityName][datasetKey][index]])
+			}));
+
+			const chartOptions = {
+				chart: {
+					type: 'line',
+					height: 800,
+					events: {
+						legendClick: function(chartContext, seriesIndex, config) {
+							const seriesName = config.globals.seriesNames[seriesIndex];
+							handleLegendClick(chartContext, seriesName);
+							return false;  // Prevent default legend click behavior
+						}
+					},
+					toolbar: {
+						tools: {
+							pan: true, // Enable pan tool
+							zoomin: true,
+							zoomout: true,
+							reset: true,
+						},
+					}
+				},
+				stroke: {
+					show: true,
+					curve: 'smooth'
+				},
+				series: seriesData,
+				xaxis: {
+					type: 'datetime'
+				},
+				title: {
+					text: chartTitle,
+					align: 'left'
+				},
+				colors: Object.keys(cityColors).map(cityName => cityColors[cityName])
+			};
+
+			charts[chartId] = new ApexCharts(document.querySelector(`#${chartId}`), chartOptions);
+			charts[chartId].render();
+		}
+
+
+		function initializeCharts() {
+			createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
+			createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
+			createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
+			createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
+			createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
+			createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
+		}
+
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.text();
+                const match = url.match(/\/([\w-]+)_flatdata\.txt$/);
+                if (match && match.length > 1) {
+                    const cityName = match[1].replace(/-/g, ' ');
+                    processTextData(data, cityName);
+                } else {
+                    console.error('Could not extract city name from URL:', url);
+                }
+            } catch (error) {
+                console.error(`Fetch and processing failed for URL: ${url}`, error);
+            }
+        }
+
+        async function initializeData() {
+            const fetchPromises = urls.map(url => fetchData(url));
+            await Promise.all(fetchPromises);
+            console.log("All data fetched and processed, creating charts...");
+            initializeCharts();
+        }
+
+        initializeData();
+    </script>
+</body>
+</html>
