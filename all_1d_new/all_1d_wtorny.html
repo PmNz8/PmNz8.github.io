@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Estate Data Visualization</title>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.0/adapter.moment.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         .chart-container {
             width: 50%;
@@ -13,17 +12,11 @@
             min-height: 500px;
         }
 
-        canvas {
-            display: block;
-            max-width: 100%;
-        }
-
         .toggle-button {
             background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
             margin: 5px 0 10px 0;
-            /* Combined margin property */
             border: none;
             cursor: pointer;
             border-radius: 5px;
@@ -43,7 +36,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="buttons-container" style="text-align:center; margin-bottom:20px; margin-top:20px">
         <a href="https://PmNz8.github.io/" class="button">Wojewódzkie wtórny</a>
@@ -56,39 +48,27 @@
     </div>
     <div class="chart-container">
         <button class="toggle-button" onclick="toggleGlobalDataLines()">Toggle All Cities</button>
-        <canvas id="offersChart"></canvas>
+        <div id="offersChart"></div>
     </div>
-    <div class="chart-container">
-        <canvas id="avgPriceChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="pricePerSqMeterChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="avgFlatSizeChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="totalPriceChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="totalAreaChart"></canvas>
-    </div>
+    <div class="chart-container" id="avgPriceChart"></div>
+    <div class="chart-container" id="pricePerSqMeterChart"></div>
+    <div class="chart-container" id="avgFlatSizeChart"></div>
+    <div class="chart-container" id="totalPriceChart"></div>
+    <div class="chart-container" id="totalAreaChart"></div>
+
     <script>
         // URLs of the text files
         const urls = [
             'https://raw.githubusercontent.com/PmNz8/PmNz8.github.io/main/all_1d_new/wszystko_1d_new_flatdata.txt'
         ];
 
-        // Object to hold processed data for each city
         let cityData = {};
-        let charts = {}; // Storing chart instances
-        let cityColors = {}; // Storing colors for each city
-
-        // Function to process text data from each file
+        let charts = {};
+        let cityColors = {};
+        let allLinesVisible = true;  // State to track visibility
+		
         function processTextData(text, cityName) {
-            // Split the text into lines
             const lines = text.trim().split('\n');
-            // Process each line
             lines.forEach(line => {
                 const fields = line.split(' ');
                 if (fields.length >= 8) {
@@ -147,110 +127,92 @@
 
         initializeCityColors();
 
-        // A function to create a Chart.js dataset
-        function createDataset(cityData, key, cityName) {
-            const color = cityColors[cityName];
-            return {
-                label: cityName, // Now the label is just the city name
-                data: cityData[key].map((value, index) => ({ x: cityData.dates[index], y: value })),
-                fill: false,
-                borderColor: color,
-                pointBackgroundColor: color,
-                pointBorderColor: color,
-                pointHoverBackgroundColor: color,
-                pointHoverBorderColor: color
-            };
-        }
+		// Function to synchronize visibility across all charts
+		function syncSeriesVisibility(seriesName, isVisible) {
+			Object.values(charts).forEach(chart => {
+				if (isVisible) {
+					chart.showSeries(seriesName);
+				} else {
+					chart.hideSeries(seriesName);
+				}
+			});
+		}
 
-        function toggleGlobalDataLines() {
-            // Iterate over all city names and toggle their visibility in all charts
-            Object.keys(cityColors).forEach(cityName => {
-                toggleDataLines(cityName);
-            });
-        }
+		// Function to handle legend clicks and synchronize across charts
+		function handleLegendClick(chart, seriesName) {
+			const isVisible = chart.w.globals.collapsedSeriesIndices.indexOf(chart.w.globals.seriesNames.indexOf(seriesName)) === -1;
+			syncSeriesVisibility(seriesName, !isVisible);
+		}
 
-        function toggleDataLines(datasetLabel) {
-            // Iterate over all charts
-            for (const chartId in charts) {
-                const chart = charts[chartId];
+		function toggleGlobalDataLines() {
+			allLinesVisible = !allLinesVisible; // Toggle the visibility state
 
-                // Find the dataset by label and toggle its visibility
-                const dataset = chart.data.datasets.find(d => d.label === datasetLabel);
-                if (dataset) {
-                    dataset.hidden = !dataset.hidden;
-                }
+			Object.values(charts).forEach(chart => {
+				chart.w.globals.seriesNames.forEach(seriesName => {
+					if (allLinesVisible) {
+						chart.showSeries(seriesName); // Show series if they are hidden
+					} else {
+						chart.hideSeries(seriesName); // Hide series if they are visible
+					}
+				});
+			});
+		}
+		
+		function createChart(chartId, chartTitle, datasetKey) {
+			const seriesData = Object.keys(cityData).map(cityName => ({
+				name: cityName,
+				data: cityData[cityName].dates.map((date, index) => [new Date(date).getTime(), cityData[cityName][datasetKey][index]])
+			}));
 
-                // Update the chart
-                chart.update();
-            }
-        }
+			const chartOptions = {
+				chart: {
+					type: 'line',
+					height: 600,
+					events: {
+						legendClick: function(chartContext, seriesIndex, config) {
+							const seriesName = config.globals.seriesNames[seriesIndex];
+							handleLegendClick(chartContext, seriesName);
+							return false;  // Prevent default legend click behavior
+						}
+					},
+					toolbar: {
+						tools: {
+							pan: true, // Enable pan tool
+							zoomin: true,
+							zoomout: true,
+							reset: true,
+						},
+					}
+				},
+				stroke: {
+					show: true,
+					curve: 'smooth'
+				},
+				series: seriesData,
+				xaxis: {
+					type: 'datetime'
+				},
+				title: {
+					text: chartTitle,
+					align: 'left'
+				},
+				colors: Object.keys(cityColors).map(cityName => cityColors[cityName])
+			};
 
-        function handleLegendClick(e, legendItem) {
-            const index = legendItem.datasetIndex;
+			charts[chartId] = new ApexCharts(document.querySelector(`#${chartId}`), chartOptions);
+			charts[chartId].render();
+		}
 
-            // Iterate over all chart instances
-            Object.values(charts).forEach((chart) => {
-                const meta = chart.getDatasetMeta(index);
 
-                // Toggle visibility
-                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+		function initializeCharts() {
+			createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
+			createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
+			createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
+			createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
+			createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
+			createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
+		}
 
-                // Update the chart
-                chart.update();
-            });
-        }
-
-        function createChart(canvasId, chartTitle, datasetKey) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            charts[canvasId] = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: cityData[Object.keys(cityData)[0]].dates,
-                    datasets: Object.keys(cityData).map(cityName => createDataset(cityData[cityName], datasetKey, cityName))
-                },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                parser: 'YYYY-MM-DD',
-                                tooltipFormat: 'll',
-                                unit: 'day'
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Date'
-                            }
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: false,
-                            }
-                        }]
-                    },
-                    legend: {
-                        onClick: handleLegendClick
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    title: {
-                        display: true,
-                        text: chartTitle
-                    }
-                }
-            });
-        }
-
-        function initializeCharts() {
-            createChart('offersChart', 'Number of Sale Offers', 'numberOfOffers');
-            createChart('avgPriceChart', 'Average Flat Price', 'avgFlatPrices');
-            createChart('pricePerSqMeterChart', 'Average Price per Square Meter', 'pricesPerSqMeter');
-            createChart('avgFlatSizeChart', 'Average Flat Size', 'avgFlatSizes');
-            createChart('totalPriceChart', 'Total Sum of All Prices', 'totalPrices');
-            createChart('totalAreaChart', 'Total Sum of All Flat Areas', 'totalAreas');
-        }
-
-        // Async function to fetch and process data for a single URL
         async function fetchData(url) {
             try {
                 const response = await fetch(url);
@@ -270,36 +232,14 @@
             }
         }
 
-        // Function to initialize data fetching and processing for all URLs
         async function initializeData() {
             const fetchPromises = urls.map(url => fetchData(url));
             await Promise.all(fetchPromises);
             console.log("All data fetched and processed, creating charts...");
-            // Call your function to initialize charts here
             initializeCharts();
         }
 
-        // Call initializeData at the end of your script
         initializeData();
     </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function (event) {
-            // Simple check for mobile devices
-            if (/Mobi|Android/i.test(navigator.userAgent)) {
-                // It's a mobile device, adjust the .chart-container width to 100%
-                var chartContainers = document.querySelectorAll('.chart-container');
-                chartContainers.forEach(function (container) {
-                    container.style.width = '100%';
-                });
-            } else {
-                // Not a mobile device, adjust the .chart-container width to 50%
-                var chartContainers = document.querySelectorAll('.chart-container');
-                chartContainers.forEach(function (container) {
-                    container.style.width = '50%';
-                });
-            }
-        });
-    </script>
 </body>
-
 </html>
