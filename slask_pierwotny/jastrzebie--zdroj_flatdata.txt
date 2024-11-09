@@ -149,3 +149,4 @@
 2024-11-06 pierwotny jastrzebie--zdroj 1 630000.0 5000.0 126.0 630000 126
 2024-11-07 pierwotny jastrzebie--zdroj 1 630000.0 5000.0 126.0 630000 126
 2024-11-08 pierwotny jastrzebie--zdroj 1 630000.0 5000.0 126.0 630000 126
+2024-11-09 pierwotny jastrzebie--zdroj 1 630000.0 5000.0 126.0 630000 126
