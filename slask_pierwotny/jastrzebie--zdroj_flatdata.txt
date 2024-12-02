@@ -170,3 +170,4 @@
 2024-11-29 pierwotny jastrzebie--zdroj 1 201000.0 3608.62 55.7 201000 55.7
 2024-11-30 pierwotny jastrzebie--zdroj 1 201000.0 3608.62 55.7 201000 55.7
 2024-12-01 pierwotny jastrzebie--zdroj 1 201000.0 3608.62 55.7 201000 55.7
+2024-12-02 pierwotny jastrzebie--zdroj 1 201000.0 3608.62 55.7 201000 55.7
