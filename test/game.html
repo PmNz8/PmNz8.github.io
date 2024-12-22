@@ -92,10 +92,6 @@
             min-height: 100vh;
         }
 
-        #game-container {
-            flex: 1; /* Allow game container to take up remaining space */
-        }
-
         footer {
             margin-top: auto; /* Push footer to the bottom */
             text-align: center;
@@ -259,7 +255,7 @@
             const totalTimeMilliseconds = endTime - startTime;
             const totalTimeHundredths = Math.round(totalTimeMilliseconds / 10); // Convert to hundredths of a second
             const baseScore = 10000;
-            const penaltyFactorPerHundredth = 0.0833; // Adjusted penalty factor
+            const penaltyFactorPerHundredth = 1.899; // Adjusted penalty factor
             let score = baseScore - (totalTimeHundredths * penaltyFactorPerHundredth);
             return Math.max(0, Math.round(score)); // Ensure score is not negative and is an integer
         }
