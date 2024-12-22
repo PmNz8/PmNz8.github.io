@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pass The Gap</title>
+<style>
+  body { margin: 0; overflow: hidden; background-color: #f0f0f0; }
+  #gameCanvas { background-color: white; display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Set canvas dimensions
+  canvas.width = 400;
+  canvas.height = 600;
+
+  // Ball properties
+  const ballRadius = 10;
+  let ballX = canvas.width / 2;
+  let ballY = 20;
+  let ballSpeedX = 4;
+  let ballSpeedY = 4;
+
+  // Bar properties
+  const barHeight = 5;
+  const barWidth = 100;
+  let barX = (canvas.width - barWidth) / 2;
+  const barY = canvas.height * 0.75 - barHeight / 2; // 3/4 of the screen height
+  const gapWidth = 50;
+  let barMoving = false;
+
+  // Event listeners for bar control
+  document.addEventListener('mousemove', moveBar);
+  document.addEventListener('touchmove', moveBarTouch);
+
+  function moveBar(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    barX = mouseX - gapWidth / 2; // Adjust barX so gap center aligns with mouse
+  }
+
+  function moveBarTouch(e) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const touchX = touch.clientX - rect.left;
+    barX = touchX - gapWidth / 2; // Adjust barX so gap center aligns with touch
+  }
+
+  function drawBall() {
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "blue";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawBar() {
+    ctx.fillStyle = "green";
+    ctx.fillRect(0, barY, barX, barHeight); // Left part of the bar
+    ctx.fillRect(barX + gapWidth, barY, canvas.width - (barX + gapWidth), barHeight); // Right part of the bar
+  }
+
+  function resetBall() {
+    ballX = canvas.width / 2;
+    ballY = 20;
+    // Randomize the horizontal speed (angle)
+    ballSpeedX = Math.random() * 3 - 1.5; // Values between -1.5 and 1.5
+    if (ballSpeedX >= 0 && ballSpeedX < 0.5) ballSpeedX = 0.5;
+    if (ballSpeedX < 0 && ballSpeedX > -0.5) ballSpeedX = -0.5;
+    ballSpeedY = 4; // Keep vertical speed constant for now
+  }
+
+  function updateBallPosition() {
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+
+    // Bounce off left and right walls
+    if (ballX + ballRadius > canvas.width || ballX - ballRadius < 0) {
+      ballSpeedX = -ballSpeedX;
+    }
+
+    // Bounce off top wall
+    if (ballY - ballRadius < 0) {
+      ballSpeedY = -ballSpeedY;
+    }
+
+    // Check collision with bar
+    if (ballY + ballRadius > barY && ballY - ballRadius < barY + barHeight) {
+      if (ballX + ballRadius > barX && ballX - ballRadius < barX + gapWidth) {
+        // Ball is within the gap, continue
+      } else if (ballX + ballRadius > 0 && ballX - ballRadius < canvas.width) {
+        // Ball hit the bar (outside the gap) - Game Over for now
+        alert("Game Over!");
+        // Reset ball position with randomized angle
+        resetBall();
+      }
+    }
+
+    // If ball reaches the bottom, it passed the bar
+    if (ballY + ballRadius > canvas.height) {
+      // You can add logic here for scoring or level progression
+      resetBall(); // Reset ball position with randomized angle
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBall();
+    drawBar();
+    updateBallPosition();
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+</script>
+
+</body>
+</html>
