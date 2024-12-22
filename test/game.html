@@ -213,7 +213,7 @@
             const totalTimeMilliseconds = endTime - startTime;
             const totalTimeHundredths = Math.round(totalTimeMilliseconds / 10); // Convert to hundredths of a second
             const baseScore = 10000;
-            const penaltyFactorPerHundredth = 0.833; // Adjusted penalty factor
+            const penaltyFactorPerHundredth = 7.497; // Adjusted penalty factor
             let score = baseScore - (totalTimeHundredths * penaltyFactorPerHundredth);
             return Math.max(0, Math.round(score)); // Ensure score is not negative and is an integer
         }
