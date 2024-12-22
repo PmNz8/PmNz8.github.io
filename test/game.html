@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find the Figure</title>
     <style>
+		body::after {
+			content: "";
+			display: block;
+			height: 10vh; /* Or your desired value */
+		}
+
 		body {
 			font-family: sans-serif;
 			display: flex;
@@ -14,7 +20,8 @@
 			min-height: 100vh;
 			margin: 0;
 			background-color: #f4f4f4;
-			padding-bottom: 10vh; /* Add bottom padding */
+			min-height: 100vh;
+			position: relative; /* Needed for the pseudo-element to work correctly */
 		}
 
 		#game-container {
