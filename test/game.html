@@ -207,7 +207,7 @@
         const startButton = document.getElementById('start-button');
         const bestScoreDisplay = document.getElementById('best-score');
 		const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
-		const GAME_STORAGE_KEY = 'findTheFigureGame';
+		const DARK_MODE_STORAGE_KEY = 'darkMode'; // Separate key for dark mode
 
         const NUM_ROUNDS = 20;
         let currentRound = 1;
@@ -223,26 +223,21 @@
         let targetFigureColor;
         let targetSVG; // Store the generated target SVG
 
-		function getGameState() {
-			const storedState = localStorage.getItem(GAME_STORAGE_KEY);
-			return storedState ? JSON.parse(storedState) : {
-				bestScore: { "score": 0, "time": 99999, "avgTime": 999 },
-				darkMode: false
-			};
-		}
-
-		function setGameState(gameState) {
-			localStorage.setItem(GAME_STORAGE_KEY, JSON.stringify(gameState));
-		}
-
 		function getBestScore() {
-			return getGameState().bestScore;
+			const storedScore = localStorage.getItem('bestScore');
+			return storedScore ? JSON.parse(storedScore) : { "score": 0, "time": 99999, "avgTime": 999 };
 		}
 
 		function setBestScore(scoreData) {
-			const gameState = getGameState();
-			gameState.bestScore = scoreData;
-			setGameState(gameState);
+			localStorage.setItem('bestScore', JSON.stringify(scoreData));
+		}
+
+		function getDarkModePreference() {
+			return localStorage.getItem(DARK_MODE_STORAGE_KEY) === 'true';
+		}
+
+		function setDarkModePreference(isDarkMode) {
+			localStorage.setItem(DARK_MODE_STORAGE_KEY, isDarkMode);
 		}
 
 		function applyDarkMode(isDarkMode) {
@@ -422,10 +417,9 @@
 		}
 
 		function toggleDarkMode() {
-			const gameState = getGameState();
-			gameState.darkMode = !gameState.darkMode;
-			setGameState(gameState);
-			applyDarkMode(gameState.darkMode);
+			const isDarkMode = !getDarkModePreference();
+			setDarkModePreference(isDarkMode);
+			applyDarkMode(isDarkMode);
 		}
 
         startButton.addEventListener('click', startGame);
@@ -433,8 +427,7 @@
 
         // Initial setup: Display the start button and best score
         startButton.style.display = 'block';
-		const initialGameState = getGameState();
-        applyDarkMode(initialGameState.darkMode);
+		applyDarkMode(getDarkModePreference());
         displayBestScore();
     </script>
 </body>
