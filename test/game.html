@@ -191,10 +191,10 @@
     <footer>
         <div id="button-container">
             <button id="start-button">Start Game</button>
-			<div class="dark-mode-toggle">
-				<label for="dark-mode-checkbox">Dark Mode</label>
-				<input type="checkbox" id="dark-mode-checkbox">
-			</div>
+            <div class="dark-mode-toggle">
+                <label for="dark-mode-checkbox">Dark Mode</label>
+                <input type="checkbox" id="dark-mode-checkbox">
+            </div>
         </div>
         <div id="best-score"></div>
     </footer>
@@ -207,8 +207,8 @@
         const timerDisplay = document.getElementById('timer');
         const startButton = document.getElementById('start-button');
         const bestScoreDisplay = document.getElementById('best-score');
-		const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
-		const DARK_MODE_STORAGE_KEY = 'darkMode'; // Separate key for dark mode
+        const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
+        const DARK_MODE_STORAGE_KEY = 'darkMode';
 
         const NUM_ROUNDS = 20;
         let currentRound = 1;
@@ -216,15 +216,18 @@
         let endTime;
         let timerInterval;
         let gameStarted = false;
+        let animationFrameId; // For requestAnimationFrame
+        let frameCount = 0; // To track frames for throttling
+        const updateInterval = 2; // Update display every 2 frames (adjust as needed)
 
         const figures = ['circle', 'square', 'triangle', 'star', 'rectangle'];
         const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 
         let targetFigureType;
         let targetFigureColor;
-        let targetSVG; // Store the generated target SVG
+        let targetSVG;
 
-		function getBestScore() {
+        function getBestScore() {
 			const storedScore = localStorage.getItem('bestScore');
 			return storedScore ? JSON.parse(storedScore) : { "score": 0, "time": 99999, "avgTime": 999 };
 		}
@@ -336,23 +339,6 @@
             }
         }
 
-        function startTimer() {
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 10);
-        }
-
-        function updateTimer() {
-            const elapsedTime = (Date.now() - startTime) / 1000;
-            timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
-        }
-
-		function stopTimer() {
-			clearInterval(timerInterval);
-			endTime = Date.now();
-			const elapsedTime = (endTime - startTime) / 1000;
-			timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`; // Update timer to match exact endTime
-		}
-
         function calculateScore() {
             const totalTimeMilliseconds = endTime - startTime;
             const totalTimeHundredths = Math.round(totalTimeMilliseconds / 10); // Convert to hundredths of a second
@@ -396,18 +382,6 @@
             }
         }
 
-        function startGame() {
-            gameStarted = true;
-            currentRound = 1;
-            roundDisplay.textContent = `Round: ${currentRound}`;
-            timerDisplay.textContent = `Time: 0.00s`;
-            targetFigureContainer.innerHTML = '';
-            gridContainer.innerHTML = '';
-            startTimer();
-            displayTargetFigure();
-            startButton.style.display = 'none'; // Hide the start button
-        }
-
         function displayBestScore() {
 			const bestScoreData = getBestScore();
 			if (bestScoreData.score > 0) {
@@ -423,12 +397,58 @@
 			applyDarkMode(isDarkMode);
 		}
 
-        startButton.addEventListener('click', startGame);
-		darkModeCheckbox.addEventListener('change', toggleDarkMode);
+        function updateTimer() {
+            frameCount++;
+            if (frameCount % updateInterval === 0) {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
+            }
 
-        // Initial setup: Display the start button and best score
+            // Request the next animation frame
+            animationFrameId = requestAnimationFrame(updateTimer);
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timerDisplay.textContent = `Time: 0.00s`;
+            frameCount = 0; // Reset frame count
+
+            // Use a smaller interval (e.g., 10ms) for internal precision if needed
+            timerInterval = setInterval(() => {
+                // Optionally, do very lightweight calculations here
+                // that need higher precision, but avoid DOM updates.
+            }, 10);
+
+            // Start the animation loop for display updates
+            animationFrameId = requestAnimationFrame(updateTimer);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationFrameId); // Cancel the animation frame loop
+            endTime = Date.now();
+            const elapsedTime = (endTime - startTime) / 1000;
+            timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
+        }
+
+        function startGame() {
+            gameStarted = true;
+            currentRound = 1;
+            roundDisplay.textContent = `Round: ${currentRound}`;
+            timerDisplay.textContent = `Time: 0.00s`;
+            targetFigureContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
+            startTimer();
+            displayTargetFigure();
+            startButton.style.display = 'none';
+        }
+
+        startButton.addEventListener('click', startGame);
+        darkModeCheckbox.addEventListener('change', toggleDarkMode);
+
+        // Initial setup
         startButton.style.display = 'block';
-		applyDarkMode(getDarkModePreference());
+        applyDarkMode(getDarkModePreference());
         displayBestScore();
     </script>
 </body>
