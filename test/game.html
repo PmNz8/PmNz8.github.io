@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find the Figure</title>
     <style>
-		body::after {
-			content: "";
-			display: block;
-			height: 10vh; /* Or your desired value */
+		html {
+			padding-bottom: 10vh; /* Adjust the value as needed */
 		}
 
 		body {
@@ -20,8 +18,6 @@
 			min-height: 100vh;
 			margin: 0;
 			background-color: #f4f4f4;
-			min-height: 100vh;
-			position: relative; /* Needed for the pseudo-element to work correctly */
 		}
 
 		#game-container {
@@ -253,9 +249,11 @@
         }
 
         function stopTimer() {
-            clearInterval(timerInterval);
-            endTime = Date.now();
-        }
+			clearInterval(timerInterval);
+			endTime = Date.now();
+			const elapsedTime = (endTime - startTime) / 1000;
+			timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`; // Update timer to match exact endTime
+		}
 
         function calculateScore() {
             const totalTimeMilliseconds = endTime - startTime;
