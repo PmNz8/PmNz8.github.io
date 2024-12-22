@@ -206,10 +206,11 @@
         }
 
         function calculateScore() {
-            const totalTimeSeconds = (endTime - startTime) / 1000;
-            const baseScore = 1000;
-            const penaltyFactor = 8.33; // Adjust this to fine-tune scoring
-            let score = baseScore - (totalTimeSeconds * penaltyFactor);
+            const totalTimeMilliseconds = endTime - startTime;
+            const totalTimeHundredths = Math.round(totalTimeMilliseconds / 10); // Convert to hundredths of a second
+            const baseScore = 10000;
+            const penaltyFactorPerHundredth = 0.833; // Adjusted penalty factor
+            let score = baseScore - (totalTimeHundredths * penaltyFactorPerHundredth);
             return Math.max(0, Math.round(score)); // Ensure score is not negative and is an integer
         }
 
