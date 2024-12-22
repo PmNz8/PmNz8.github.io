@@ -305,20 +305,13 @@
         }
 
         function displayBestScore() {
-            const bestScoreData = getBestScore();
-            if (finalScore > bestScoreData.score) {
-				bestScoreData.score = finalScore;
-				bestScoreData.time = totalTimeSeconds;
-				bestScoreData.avgTime = averageTimePerRound;
-				setBestScore(bestScoreData); // Replace setCookie('bestScore', ...)
-				displayBestScore();
-			} else if (finalScore === bestScoreData.score && totalTimeSeconds < bestScoreData.time) {
-				bestScoreData.time = totalTimeSeconds;
-				bestScoreData.avgTime = averageTimePerRound;
-				setBestScore(bestScoreData); // Replace setCookie('bestScore', ...)
-				displayBestScore();
+			const bestScoreData = getBestScore();
+			if (bestScoreData.score > 0) {
+				bestScoreDisplay.textContent = `Best Score: ${bestScoreData.score}, Time: ${bestScoreData.time.toFixed(2)}s, Avg Time: ${bestScoreData.avgTime}s`;
+			} else {
+				bestScoreDisplay.textContent = ''; // Or some initial message
 			}
-        }
+		}
 
         startButton.addEventListener('click', startGame);
 
