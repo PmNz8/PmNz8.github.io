@@ -20,6 +20,13 @@
 			min-height: 100vh;
 			margin: 0;
 			background-color: #f4f4f4;
+			color: #000; /* Default text color */
+			transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark mode */
+		}
+
+		body.dark-mode {
+			background-color: #333;
+			color: #ccc; /* Gray text color in dark mode */
 		}
 
 		#game-container {
@@ -29,6 +36,12 @@
 			border-radius: 8px;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 			margin-bottom: 20px; /* Add some space above the button/score */
+			transition: background-color 0.3s;
+		}
+
+		body.dark-mode #game-container {
+			background-color: #444;
+			box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
 		}
 
 		#target-figure-container {
@@ -56,6 +69,11 @@
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;
+			transition: border-color 0.3s;
+		}
+
+		body.dark-mode .grid-item {
+			border-color: #777;
 		}
 
 		.grid-item svg {
@@ -76,6 +94,10 @@
 		#button-container {
 			margin-top: 20px;
 			margin-bottom: 10px; /* Add some space between button and score */
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			justify-content: center;
 		}
 
 		#start-button {
@@ -86,11 +108,21 @@
 			border: none;
 			background-color: #007bff;
 			color: white;
+			transition: background-color 0.3s;
+		}
+
+		body.dark-mode #start-button {
+			background-color: #5dade2;
 		}
 
 		#best-score {
 			font-size: 0.9em;
 			color: #555;
+			transition: color 0.3s;
+		}
+
+		body.dark-mode #best-score {
+			color: #bbb;
 		}
 
 		/* Sticky footer styles */
@@ -105,7 +137,46 @@
 			text-align: center;
 			padding: 10px;
 		}
-	</style>
+
+		/* Dark mode toggle styles */
+		.dark-mode-toggle {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			cursor: pointer;
+		}
+
+		.dark-mode-toggle input[type="checkbox"] {
+			appearance: none;
+			width: 40px;
+			height: 20px;
+			background-color: #ccc;
+			border-radius: 10px;
+			position: relative;
+			cursor: pointer;
+			transition: background-color 0.3s;
+		}
+
+		body.dark-mode .dark-mode-toggle input[type="checkbox"] {
+			background-color: #777;
+		}
+
+		.dark-mode-toggle input[type="checkbox"]::before {
+			content: '';
+			position: absolute;
+			width: 18px;
+			height: 18px;
+			background-color: #fff;
+			border-radius: 50%;
+			top: 1px;
+			left: 1px;
+			transition: transform 0.3s;
+		}
+
+		.dark-mode-toggle input:checked[type="checkbox"]::before {
+			transform: translateX(20px);
+		}
+    </style>
 </head>
 <body>
     <div id="game-container">
@@ -119,17 +190,24 @@
     <footer>
         <div id="button-container">
             <button id="start-button">Start Game</button>
+			<div class="dark-mode-toggle">
+				<label for="dark-mode-checkbox">Dark Mode</label>
+				<input type="checkbox" id="dark-mode-checkbox">
+			</div>
         </div>
         <div id="best-score"></div>
     </footer>
 
     <script>
+        const body = document.body;
         const roundDisplay = document.getElementById('round');
         const targetFigureContainer = document.getElementById('target-figure');
         const gridContainer = document.getElementById('grid-container');
         const timerDisplay = document.getElementById('timer');
         const startButton = document.getElementById('start-button');
         const bestScoreDisplay = document.getElementById('best-score');
+		const darkModeCheckbox = document.getElementById('dark-mode-checkbox');
+		const GAME_STORAGE_KEY = 'findTheFigureGame';
 
         const NUM_ROUNDS = 20;
         let currentRound = 1;
@@ -145,13 +223,35 @@
         let targetFigureColor;
         let targetSVG; // Store the generated target SVG
 
+		function getGameState() {
+			const storedState = localStorage.getItem(GAME_STORAGE_KEY);
+			return storedState ? JSON.parse(storedState) : {
+				bestScore: { "score": 0, "time": 99999, "avgTime": 999 },
+				darkMode: false
+			};
+		}
+
+		function setGameState(gameState) {
+			localStorage.setItem(GAME_STORAGE_KEY, JSON.stringify(gameState));
+		}
+
 		function getBestScore() {
-			const storedScore = localStorage.getItem('bestScore');
-			return storedScore ? JSON.parse(storedScore) : { "score": 0, "time": 99999, "avgTime": 999 };
+			return getGameState().bestScore;
 		}
 
 		function setBestScore(scoreData) {
-			localStorage.setItem('bestScore', JSON.stringify(scoreData));
+			const gameState = getGameState();
+			gameState.bestScore = scoreData;
+			setGameState(gameState);
+		}
+
+		function applyDarkMode(isDarkMode) {
+			if (isDarkMode) {
+				body.classList.add('dark-mode');
+			} else {
+				body.classList.remove('dark-mode');
+			}
+			darkModeCheckbox.checked = isDarkMode;
 		}
 
         function getRandomElement(array) {
@@ -285,12 +385,12 @@
 					bestScoreData.score = finalScore;
 					bestScoreData.time = totalTimeSeconds;
 					bestScoreData.avgTime = averageTimePerRound;
-					setBestScore(bestScoreData); // Replace setCookie('bestScore', ...)
+					setBestScore(bestScoreData);
 					displayBestScore();
 				} else if (finalScore === bestScoreData.score && totalTimeSeconds < bestScoreData.time) {
 					bestScoreData.time = totalTimeSeconds;
 					bestScoreData.avgTime = averageTimePerRound;
-					setBestScore(bestScoreData); // Replace setCookie('bestScore', ...)
+					setBestScore(bestScoreData);
 					displayBestScore();
 				}
 
@@ -321,10 +421,20 @@
 			}
 		}
 
+		function toggleDarkMode() {
+			const gameState = getGameState();
+			gameState.darkMode = !gameState.darkMode;
+			setGameState(gameState);
+			applyDarkMode(gameState.darkMode);
+		}
+
         startButton.addEventListener('click', startGame);
+		darkModeCheckbox.addEventListener('change', toggleDarkMode);
 
         // Initial setup: Display the start button and best score
         startButton.style.display = 'block';
+		const initialGameState = getGameState();
+        applyDarkMode(initialGameState.darkMode);
         displayBestScore();
     </script>
 </body>
