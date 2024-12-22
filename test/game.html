@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find the Figure</title>
     <style>
-		html {
-			padding-bottom: 10vh; /* Adjust the value as needed */
+		body::after {
+			content: "";
+			display: block;
+			height: 10vh; /* Or your desired value */
 		}
 
 		body {
@@ -248,7 +250,7 @@
             timerDisplay.textContent = `Time: ${elapsedTime.toFixed(2)}s`;
         }
 
-        function stopTimer() {
+		function stopTimer() {
 			clearInterval(timerInterval);
 			endTime = Date.now();
 			const elapsedTime = (endTime - startTime) / 1000;
