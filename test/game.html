@@ -26,8 +26,10 @@
         }
 
         #target-figure-container {
-            margin-bottom: 20px;
-        }
+			margin-bottom: 20px;
+			display: flex; /* Add this line */
+			justify-content: center; /* Add this line */
+		}
 
         #target-figure {
             width: 80px;
@@ -137,18 +139,14 @@
         let targetFigureColor;
         let targetSVG; // Store the generated target SVG
 
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-        }
+		function getBestScore() {
+			const storedScore = localStorage.getItem('bestScore');
+			return storedScore ? JSON.parse(storedScore) : { "score": 0, "time": 99999, "avgTime": 999 };
+		}
 
-        function setCookie(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = `expires=${date.toUTCString()}`;
-            document.cookie = `${name}=${value}; ${expires}; path=/`;
-        }
+		function setBestScore(scoreData) {
+			localStorage.setItem('bestScore', JSON.stringify(scoreData));
+		}
 
         function getRandomElement(array) {
             return array[Math.floor(Math.random() * array.length)];
@@ -273,7 +271,7 @@
                 const finalScore = calculateScore();
 
                 // Check and update best score
-                const bestScoreData = JSON.parse(getCookie('bestScore') || '{"score": 0, "time": 99999, "avgTime": 999}');
+                const bestScoreData = getBestScore();
 
                 if (finalScore > bestScoreData.score) {
                     bestScoreData.score = finalScore;
@@ -307,12 +305,19 @@
         }
 
         function displayBestScore() {
-            const bestScoreData = JSON.parse(getCookie('bestScore') || '{"score": 0, "time": 99999, "avgTime": 999}');
-            if (bestScoreData.score > 0) {
-                bestScoreDisplay.textContent = `Best Score: ${bestScoreData.score}, Time: ${bestScoreData.time.toFixed(2)}s, Avg Time: ${bestScoreData.avgTime}s`;
-            } else {
-                bestScoreDisplay.textContent = ''; // Or some initial message
-            }
+            const bestScoreData = getBestScore();
+            if (finalScore > bestScoreData.score) {
+				bestScoreData.score = finalScore;
+				bestScoreData.time = totalTimeSeconds;
+				bestScoreData.avgTime = averageTimePerRound;
+				setBestScore(bestScoreData); // Replace setCookie('bestScore', ...)
+				displayBestScore();
+			} else if (finalScore === bestScoreData.score && totalTimeSeconds < bestScoreData.time) {
+				bestScoreData.time = totalTimeSeconds;
+				bestScoreData.avgTime = averageTimePerRound;
+				setBestScore(bestScoreData); // Replace setCookie('bestScore', ...)
+				displayBestScore();
+			}
         }
 
         startButton.addEventListener('click', startGame);
