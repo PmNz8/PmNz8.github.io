@@ -273,18 +273,11 @@
                 // Check and update best score
                 const bestScoreData = getBestScore();
 
-                if (finalScore > bestScoreData.score) {
-                    bestScoreData.score = finalScore;
-                    bestScoreData.time = totalTimeSeconds;
-                    bestScoreData.avgTime = averageTimePerRound;
-                    setCookie('bestScore', JSON.stringify(bestScoreData), 365); // Save for 365 days
-                    displayBestScore();
-                } else if (finalScore === bestScoreData.score && totalTimeSeconds < bestScoreData.time) {
-                    bestScoreData.time = totalTimeSeconds;
-                    bestScoreData.avgTime = averageTimePerRound;
-                    setCookie('bestScore', JSON.stringify(bestScoreData), 365);
-                    displayBestScore();
-                }
+                if (bestScoreData.score > 0) {
+					bestScoreDisplay.textContent = `Best Score: ${bestScoreData.score}, Time: ${bestScoreData.time.toFixed(2)}s, Avg Time: ${bestScoreData.avgTime}s`;
+				} else {
+					bestScoreDisplay.textContent = ''; // Or some initial message
+				}
 
                 alert(`Congratulations! You completed all ${NUM_ROUNDS} rounds in ${totalTimeSeconds.toFixed(2)} seconds! Your score: ${finalScore}. Average time per round: ${averageTimePerRound} seconds.`);
                 startButton.textContent = 'Restart Game';
