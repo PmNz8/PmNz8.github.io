@@ -64,7 +64,7 @@
             font-weight: bold;
         }
 
-        #restart-button {
+        #start-button {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 1.1em;
@@ -73,7 +73,6 @@
             border: none;
             background-color: #007bff;
             color: white;
-            display: none; /* Hidden initially */
         }
     </style>
 </head>
@@ -85,7 +84,7 @@
         </div>
         <div class="grid-container" id="grid-container"></div>
         <div id="timer">Time: 0.00s</div>
-        <button id="restart-button">Restart Game</button>
+        <button id="start-button">Start Game</button>
     </div>
 
     <script>
@@ -93,13 +92,14 @@
         const targetFigureContainer = document.getElementById('target-figure');
         const gridContainer = document.getElementById('grid-container');
         const timerDisplay = document.getElementById('timer');
-        const restartButton = document.getElementById('restart-button');
+        const startButton = document.getElementById('start-button');
 
         const NUM_ROUNDS = 20;
         let currentRound = 1;
         let startTime;
         let endTime;
         let timerInterval;
+        let gameStarted = false;
 
         const figures = ['circle', 'square', 'triangle', 'star', 'rectangle'];
         const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
@@ -167,7 +167,11 @@
                 }
 
                 gridItem.innerHTML = itemSVG;
-                gridItem.addEventListener('click', () => checkAnswer(figureType, figureColor, targetFigureType, targetFigureColor));
+                gridItem.addEventListener('click', () => {
+                    if (gameStarted) {
+                        checkAnswer(figureType, figureColor, targetFigureType, targetFigureColor);
+                    }
+                });
                 gridContainer.appendChild(gridItem);
                 placedFigures.add(`${figureType}-${figureColor}`);
             }
@@ -221,24 +225,32 @@
                 displayTargetFigure();
             } else {
                 stopTimer();
-                const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+                gameStarted = false;
+                const totalTimeSeconds = (endTime - startTime) / 1000;
+                const averageTimePerRound = (totalTimeSeconds / NUM_ROUNDS).toFixed(2);
                 const finalScore = calculateScore();
-                alert(`Congratulations! You completed all ${NUM_ROUNDS} rounds in ${totalTime} seconds! Your score: ${finalScore}`);
-                restartButton.style.display = 'block'; // Show the restart button
+                alert(`Congratulations! You completed all ${NUM_ROUNDS} rounds in ${totalTimeSeconds.toFixed(2)} seconds! Your score: ${finalScore}. Average time per round: ${averageTimePerRound} seconds.`);
+                startButton.textContent = 'Restart Game';
+                startButton.style.display = 'block'; // Show the restart button
             }
         }
 
         function startGame() {
+            gameStarted = true;
             currentRound = 1;
             roundDisplay.textContent = `Round: ${currentRound}`;
             timerDisplay.textContent = `Time: 0.00s`;
+            targetFigureContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
             startTimer();
             displayTargetFigure();
-            restartButton.style.display = 'none'; // Hide the restart button at the start
+            startButton.style.display = 'none'; // Hide the start button
         }
 
-        restartButton.addEventListener('click', startGame);
-        document.addEventListener('DOMContentLoaded', startGame);
+        startButton.addEventListener('click', startGame);
+
+        // Initial setup: Display the start button
+        startButton.style.display = 'block';
     </script>
 </body>
 </html>
