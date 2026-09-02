@@ -3,337 +3,119 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Modding tools for Divinity II: Developer's Cut by PmNz8.">
-  <title>PmNz8 · Divinity II Modding Tools</title>
+  <meta name="description" content="Small utilities for modding Divinity II: Developer's Cut.">
+  <title>PmNz8 - Divinity II tools</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0b0d10;
-      --panel: rgba(18, 22, 28, 0.88);
-      --panel-hover: rgba(24, 30, 38, 0.96);
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #edf2f7;
-      --muted: #9aa6b2;
-      --accent: #d98c3f;
-      --accent-soft: rgba(217, 140, 63, 0.16);
-      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      --bg: #111315;
+      --panel: #181b1f;
+      --border: #2a2f35;
+      --text: #e6e8ea;
+      --muted: #9aa1a8;
+      --accent: #c9823d;
     }
 
     * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(circle at 15% 0%, rgba(217, 140, 63, 0.10), transparent 32rem),
-        radial-gradient(circle at 85% 15%, rgba(100, 130, 180, 0.08), transparent 28rem),
-        linear-gradient(180deg, #0b0d10 0%, #0f1217 55%, #0b0d10 100%);
     }
 
-    a { color: inherit; }
-
-    .shell {
-      width: min(1100px, calc(100% - 32px));
+    .container {
+      width: min(760px, calc(100% - 32px));
       margin: 0 auto;
-    }
-
-    header {
-      padding: 28px 0 8px;
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .brand-mark {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      background: var(--accent);
-      box-shadow: 0 0 22px rgba(217, 140, 63, 0.6);
-    }
-
-    .nav-link {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.95rem;
-    }
-
-    .nav-link:hover { color: var(--text); }
-
-    .hero {
-      padding: 100px 0 64px;
-      max-width: 780px;
-    }
-
-    .eyebrow {
-      margin: 0 0 16px;
-      color: var(--accent);
-      font-size: 0.8rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      padding: 64px 0;
     }
 
     h1 {
-      margin: 0;
-      max-width: 760px;
-      font-size: clamp(2.5rem, 7vw, 5.2rem);
-      line-height: 0.98;
-      letter-spacing: -0.045em;
-    }
-
-    .hero p {
-      margin: 26px 0 0;
-      max-width: 680px;
-      color: var(--muted);
-      font-size: clamp(1rem, 2vw, 1.15rem);
-      line-height: 1.75;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 32px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 0 18px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: 700;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-    }
-
-    .button-primary {
-      background: var(--accent);
-      color: #17110c;
-      border-color: transparent;
-    }
-
-    .button-secondary {
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text);
-    }
-
-    .button:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.16);
-    }
-
-    .section {
-      padding: 40px 0 80px;
-    }
-
-    .section-title {
-      margin: 0 0 10px;
-      font-size: 1.8rem;
-      letter-spacing: -0.025em;
-    }
-
-    .section-copy {
-      margin: 0 0 28px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .card {
-      position: relative;
-      overflow: hidden;
-      min-height: 270px;
-      padding: 28px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
-      box-shadow: var(--shadow);
-      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
-    }
-
-    .card::after {
-      content: "";
-      position: absolute;
-      width: 180px;
-      height: 180px;
-      right: -70px;
-      bottom: -70px;
-      border-radius: 50%;
-      background: var(--accent-soft);
-      filter: blur(4px);
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      background: var(--panel-hover);
-      border-color: rgba(217, 140, 63, 0.28);
-    }
-
-    .card-kicker {
-      position: relative;
-      z-index: 1;
       margin: 0 0 12px;
-      color: var(--accent);
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .card h2 {
-      position: relative;
-      z-index: 1;
-      margin: 0;
-      font-size: 1.55rem;
-      letter-spacing: -0.02em;
-    }
-
-    .card p {
-      position: relative;
-      z-index: 1;
-      margin: 16px 0 26px;
-      max-width: 44ch;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .card-link {
-      position: relative;
-      z-index: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text);
-      text-decoration: none;
+      font-size: clamp(2rem, 5vw, 2.8rem);
       font-weight: 700;
+      letter-spacing: -0.03em;
     }
 
-    .card-link span {
-      color: var(--accent);
-      transition: transform 160ms ease;
-    }
-
-    .card-link:hover span { transform: translateX(3px); }
-
-    .note {
-      margin-top: 20px;
-      padding: 16px 18px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
+    .intro {
+      margin: 0 0 40px;
       color: var(--muted);
-      background: rgba(255, 255, 255, 0.025);
-      font-size: 0.92rem;
+      line-height: 1.7;
+      max-width: 620px;
+    }
+
+    .tools {
+      display: grid;
+      gap: 14px;
+    }
+
+    .tool {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
+    .tool h2 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+
+    .tool p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .tool a,
+    .profile-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .tool a:hover,
+    .profile-link:hover {
+      text-decoration: underline;
     }
 
     footer {
-      padding: 28px 0 42px;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
       color: var(--muted);
       font-size: 0.9rem;
-    }
-
-    @media (max-width: 760px) {
-      .hero { padding-top: 72px; }
-      .grid { grid-template-columns: 1fr; }
-      .nav { align-items: flex-start; }
-      .card { min-height: auto; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="shell nav">
-      <a class="brand" href="https://github.com/PmNz8" aria-label="PmNz8 on GitHub">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span>PmNz8</span>
-      </a>
-      <a class="nav-link" href="https://github.com/PmNz8">GitHub profile ↗</a>
-    </div>
-  </header>
+  <main class="container">
+    <h1>Divinity II: Developer's Cut tools</h1>
+    <p class="intro">
+      A small collection of hobby tools I use while experimenting with and modding
+      Divinity II: Developer's Cut.
+    </p>
 
-  <main class="shell">
-    <section class="hero">
-      <p class="eyebrow">Divinity II · Developer's Cut</p>
-      <h1>Modding tools for an old game that deserves better tooling.</h1>
-      <p>
-        A small collection of utilities focused on exploring, modifying and rebuilding
-        assets for <strong>Divinity II: Developer's Cut</strong>.
-      </p>
-      <div class="hero-actions">
-        <a class="button button-primary" href="#tools">Browse tools</a>
-        <a class="button button-secondary" href="https://github.com/PmNz8">View GitHub profile</a>
-      </div>
+    <section class="tools" aria-label="Tools">
+      <article class="tool">
+        <h2>Texture Viewer</h2>
+        <p>Simple utility for viewing texture files used by Divinity II.</p>
+        <a href="https://github.com/PmNz8">GitHub</a>
+      </article>
+
+      <article class="tool">
+        <h2>Divinity II Developer's Cut Patch Builder</h2>
+        <p>Small utility for building patch files for modified game content.</p>
+        <a href="https://github.com/PmNz8">GitHub</a>
+      </article>
     </section>
 
-    <section class="section" id="tools">
-      <h2 class="section-title">Tools</h2>
-      <p class="section-copy">
-        Initial landing page for the project. Repository links are placeholders for now
-        and currently point back to the main GitHub profile.
-      </p>
-
-      <div class="grid">
-        <article class="card">
-          <p class="card-kicker">Texture utility</p>
-          <h2>Texture Viewer</h2>
-          <p>
-            Inspect Divinity II texture assets in a convenient standalone viewer.
-            Intended as a lightweight tool for analysis and modding workflows.
-          </p>
-          <a class="card-link" href="https://github.com/PmNz8">
-            Open project <span>→</span>
-          </a>
-        </article>
-
-        <article class="card">
-          <p class="card-kicker">Build utility</p>
-          <h2>Developer's Cut Patch Builder</h2>
-          <p>
-            Package modified files into patches for Divinity II: Developer's Cut,
-            with a workflow aimed at simple and repeatable mod distribution.
-          </p>
-          <a class="card-link" href="https://github.com/PmNz8">
-            Open project <span>→</span>
-          </a>
-        </article>
-      </div>
-
-      <div class="note">
-        More tools, documentation and screenshots can be added here later without changing
-        the overall layout.
-      </div>
-    </section>
+    <footer>
+      More information and source code will be added later.
+      <br>
+      <a class="profile-link" href="https://github.com/PmNz8">github.com/PmNz8</a>
+    </footer>
   </main>
-
-  <footer>
-    <div class="shell">
-      PmNz8 · Divinity II modding tools
-    </div>
-  </footer>
 </body>
 </html>
